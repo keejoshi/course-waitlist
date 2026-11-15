@@ -9,13 +9,15 @@ full registration platform.
 
 ## Status
 
-**Step 0 — project skeleton.** The application starts and has a startup test.
-No enrollment, drop, or waitlist logic is implemented yet.
+**Step 1 — domain model.** The enrollment, drop, and waitlist rules are
+implemented and tested as plain Java domain classes. They are not yet exposed
+through a REST API, so the running application still has no endpoints.
 
 | Step | Scope | State |
 |------|-------|-------|
 | 0 | Maven/Spring Boot skeleton, documentation scaffolding, startup test | Done |
-| 1+ | Design specification, enrollment, drop, waitlist promotion, tests | Not started |
+| 1 | Domain model (`Course`, `Learner`, `CourseOffering`), domain and concurrency tests, design specification, traceability matrix | Done |
+| 2+ | REST API, API tests, final limitations summary and coverage report | Not started |
 
 ## Planned scope
 
@@ -83,19 +85,23 @@ no endpoints yet.
 ├── pom.xml
 ├── mvnw, mvnw.cmd, .mvn/        Maven wrapper
 ├── docs/
-│   ├── DEVELOPMENT_LOG.md       Step-by-step record of what was done and verified
-│   └── AI_USAGE.md              Prompts, AI output summaries, accept/edit/reject decisions
+│   ├── DESIGN.md                      Design specification, policies, limitations
+│   ├── REQUIREMENTS_TRACEABILITY.md   Requirement and test checklist, coverage summary
+│   ├── DEVELOPMENT_LOG.md             Step-by-step record of what was done and verified
+│   └── AI_USAGE.md                    Prompts, AI output summaries, developer decisions
 └── src/
     ├── main/java/com/assessment/coursewaitlist/
-    │   └── CourseWaitlistApplication.java
+    │   ├── CourseWaitlistApplication.java
+    │   └── domain/                    Course, Learner, CourseOffering, snapshot and result types
     ├── main/resources/application.yaml
     └── test/java/com/assessment/coursewaitlist/
-        └── CourseWaitlistApplicationTests.java
+        ├── CourseWaitlistApplicationTests.java
+        └── domain/                    Domain and concurrency tests
 ```
 
 ## Documentation
 
+- [docs/DESIGN.md](docs/DESIGN.md) — design specification: boundary, assumptions and policies, domain model, invariants, promotion rule, concurrency, limitations
+- [docs/REQUIREMENTS_TRACEABILITY.md](docs/REQUIREMENTS_TRACEABILITY.md) — every requirement and test with its status, and the coverage summary
 - [docs/DEVELOPMENT_LOG.md](docs/DEVELOPMENT_LOG.md) — chronological development record and documentation rules
 - [docs/AI_USAGE.md](docs/AI_USAGE.md) — AI prompt and use record
-
-The design specification and the limitations summary will be added in later steps.
