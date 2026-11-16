@@ -1,3 +1,14 @@
 spring:
   application:
     name: course-waitlist
+
+# The single course offering served by this application. There is exactly one;
+# the API has no offering id.
+course-waitlist:
+  offering:
+    id: CS201-A
+    course-code: CS201
+    course-title: Data Structures
+    prerequisite-codes:
+      - CS101
+    capacity: 2

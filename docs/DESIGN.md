@@ -12,8 +12,8 @@ builds them.
 | Invariants | Written and tested (Step 1) |
 | Waitlist promotion rule and open-seat policy | Written and tested (Step 1) |
 | Concurrency and persistence | Written and tested (Step 1) |
-| REST API | Pending (API step) |
-| Limitations and follow-up risks | Started (Step 1); final summary pending |
+| Service layer and REST API | Written, implemented, and tested (Step 2) |
+| Limitations and follow-up risks | Updated (Step 2); final summary pending |
 
 ## 1. Context and service boundary
 
@@ -38,9 +38,9 @@ Outside the boundary, and not built: frontend, course catalog, payments,
 identity integration, multi-term registration, deployment, any database, and
 any configurable policy engine. The rules below are fixed in code.
 
-The domain model in section 3 has no framework dependencies. The REST layer
-(pending) will translate HTTP requests into calls on it and translate its
-result values into HTTP responses.
+The domain model in section 3 has no framework dependencies. The service and
+REST layers in section 7 translate HTTP requests into calls on it and
+translate its result values into HTTP responses. They add no enrollment rules.
 
 ## 2. Assumptions and policies
 
@@ -203,11 +203,132 @@ sequence of checks and the change that follows is atomic.
 - Eligibility is a point-in-time read. A completion revoked just after a
   promotion does not undo the promotion, consistent with P4.
 
-## 7. REST API
+## 7. Service layer and REST API
 
-*Pending.* To be designed and reviewed in the API step. Decisions already made
-by the developer that it must honour: duplicate enrollment and duplicate
-waitlist requests return HTTP 409.
+### 7.1 Layers
+
+| Package | Types | Responsibility |
+|---------|-------|----------------|
+| `config` | `OfferingProperties`, `OfferingConfiguration` | Reads the one offering from `course-waitlist.offering.*` in `application.yaml` and creates the single `CourseOffering` bean. An invalid value (capacity below 1, missing id or course) stops startup. |
+| `service` | `LearnerDirectory`, `EnrollmentService`, `OfferingView`, `LearnerView`, two exceptions | Holds the learners in memory, resolves a learner id to its `Learner` object, and delegates to the domain. Returns immutable results and views. |
+| `api` | `OfferingController`, `LearnerController`, request and response records, `ApiExceptionHandler` | Validates input, calls the service, and maps results to HTTP. |
+
+How service operations map to the domain:
+
+| `EnrollmentService` | Domain call |
+|---------------------|-------------|
+| `enroll(learnerId)` | `LearnerDirectory.require`, then `CourseOffering.enroll(learner)` |
+| `drop(learnerId)` | `LearnerDirectory.require`, then `CourseOffering.drop(learnerId)` |
+| `offeringState()` | `CourseOffering.snapshot()`, combined with the offering's fixed details |
+| `registerLearner(...)` | `LearnerDirectory.register`: creates one `Learner` |
+| `markCompleted`, `revokeCompletion` | `Learner.markCompleted`, `Learner.revokeCompletion` |
+
+**Why a learner directory exists.** Prerequisites are re-checked at promotion
+(P3) and completions can be revoked (P4), so a learner's completions must
+persist between requests and be changeable. The directory is an in-memory map
+that guarantees one `Learner` object per id, which the domain relies on (L3).
+It is not an identity system or a course catalog: completions are bare course
+codes and there is no list of courses.
+
+**Why there is no offering registry.** The scope is one offering. It is a
+single bean built from configuration, and no API path carries an offering id.
+
+**Locking.** The service and controllers hold no lock and no mutable state of
+their own apart from the directory's concurrent map. Every enrollment rule and
+the lock that makes each operation atomic stay in `CourseOffering`; the
+accepted domain code was not changed in Step 2.
+
+### 7.2 Endpoints
+
+| Method and path | Purpose | Success |
+|-----------------|---------|---------|
+| `GET /api/offering` | The offering and its state, from one atomic snapshot | 200 |
+| `POST /api/offering/enrollments` | Request a seat | 200, body `status` is `ENROLLED` or `WAITLISTED` |
+| `DELETE /api/offering/enrollments/{learnerId}` | Give up a seat, or leave the waitlist | 200, body `status` is `DROPPED` or `DROPPED_FROM_WAITLIST` |
+| `POST /api/learners` | Register a learner with initial completions | 201 |
+| `PUT /api/learners/{learnerId}/completed-courses/{courseCode}` | Mark a course completed | 204 |
+| `DELETE /api/learners/{learnerId}/completed-courses/{courseCode}` | Revoke a completion | 204 |
+
+Enrollment returns 200 for both outcomes, by developer decision; the client
+tells them apart by the `status` field. Drop returns 200 with a body, not
+204, because it must report who was promoted.
+
+### 7.3 Request and response bodies
+
+All bodies are JSON. Responses are immutable records built from ids and
+copies; no domain object is serialized.
+
+```
+POST /api/offering/enrollments          {"learnerId": "L1"}
+200  {"learnerId": "L1", "status": "ENROLLED", "promotedLearnerIds": []}
+
+DELETE /api/offering/enrollments/L1
+200  {"learnerId": "L1", "status": "DROPPED", "promotedLearnerIds": ["L3"]}
+
+GET /api/offering
+200  {"offeringId": "CS201-A",
+      "course": {"code": "CS201", "title": "Data Structures", "prerequisiteCodes": ["CS101"]},
+      "capacity": 2, "availableSeats": 0,
+      "enrolledLearnerIds": ["L1", "L2"], "waitlistedLearnerIds": ["L3"]}
+
+POST /api/learners    {"id": "L1", "name": "Asha", "completedCourseCodes": ["CS101"]}
+201  {"id": "L1", "name": "Asha", "completedCourseCodes": ["CS101"]}
+```
+
+`promotedLearnerIds` on an enrollment response lists waitlisted learners who
+were seated before the request was placed (W5); it is usually empty.
+
+Validation:
+
+| Field | Rule |
+|-------|------|
+| Learner id, course code (body or path) | Required; 1 to 64 characters from letters, digits, `.`, `_`, `-` |
+| Learner name | Required, not blank, at most 100 characters |
+| `completedCourseCodes` | Optional; at most 100 entries, each a valid course code |
+| Any text field | Must be a JSON string. A JSON number or boolean is not converted to text; the request is rejected with 400 |
+
+### 7.4 Errors
+
+Every error is an RFC 9457 problem document (Spring `ProblemDetail`, media
+type `application/problem+json`) with one added member, `code`, a stable
+machine-readable reason. Framework errors use the same shape.
+
+```
+409  {"type": "about:blank", "title": "Conflict", "status": 409,
+      "detail": "Learner L1 is already enrolled.",
+      "instance": "/api/offering/enrollments", "code": "ALREADY_ENROLLED"}
+```
+
+| Situation | Status | `code` |
+|-----------|--------|--------|
+| Learner already enrolled | 409 | `ALREADY_ENROLLED` |
+| Learner already on the waitlist | 409 | `ALREADY_WAITLISTED` |
+| Prerequisites not met | 422 | `PREREQUISITES_NOT_MET` |
+| Drop by a registered learner who is neither enrolled nor waitlisted, including a repeated drop | 409 | `NOT_ENROLLED` |
+| Learner id not registered (enroll, drop, or completion change) | 404 | `LEARNER_NOT_FOUND` |
+| Learner id already registered | 409 | `LEARNER_ALREADY_EXISTS` |
+| Missing, blank, or malformed field; malformed JSON | 400 | `INVALID_REQUEST` |
+| Unknown path | 404 | `NOT_FOUND` |
+| Wrong HTTP method / content type | 405 / 415 | `METHOD_NOT_ALLOWED` / `UNSUPPORTED_MEDIA_TYPE` |
+| Unexpected failure | 500 | `INTERNAL_ERROR` |
+
+A rejected request never changes the offering. An unexpected failure is logged
+on the server and reported to the client without its cause; no response
+carries a stack trace or class name.
+
+### 7.5 API decisions and tradeoffs
+
+| # | Decision | Origin |
+|---|----------|--------|
+| A1 | In-memory `LearnerDirectory` with three learner endpoints, so skip-and-retain can be exercised over HTTP. | Developer (AI-recommended option) |
+| A2 | The single offering is configured in `application.yaml`. | Developer (AI-recommended option) |
+| A3 | No offering id in any path and no offering registry. The "unknown offering" scenario is a review check, not a test. | Developer |
+| A4 | 200 for both `ENROLLED` and `WAITLISTED`. | Developer (the AI had recommended 201 and 202) |
+| A5 | 422 for a prerequisite failure. | Developer (AI-recommended option) |
+| A6 | 409 `NOT_ENROLLED` for a drop by a registered learner who holds nothing; 404 `LEARNER_NOT_FOUND` for an unregistered id. | Developer (the AI had recommended 404 for the first) |
+| A7 | Marking a completion does not itself fill a vacant seat (L1 kept). | Developer |
+| A8 | The enrollment response does not include a waitlist position; a client reads the order from `GET /api/offering`. Including it atomically would need a domain change. | AI-suggested |
+| A9 | Identifier format: 1 to 64 characters from letters, digits, `.`, `_`, `-`. | AI-suggested |
 
 ## 8. Limitations and follow-up risks
 
@@ -215,10 +336,14 @@ Found so far; a final summary will be produced at the end of the project.
 
 | # | Limitation | Consequence |
 |---|------------|-------------|
-| L1 | A waitlisted learner who regains eligibility while a seat is vacant is not promoted immediately. | They wait until the next drop or the next valid new enrollment request. Their own repeat request returns `ALREADY_WAITLISTED` and does not promote them. A "re-check open seats" trigger on completion changes would close this gap. |
+| L1 | A waitlisted learner who regains eligibility while a seat is vacant is not promoted immediately. This applies to the API too: `PUT .../completed-courses/...` does not seat anyone. | They wait until the next drop or the next valid new enrollment request. Their own repeat request returns `ALREADY_WAITLISTED` and does not promote them. A "re-check open seats" trigger on completion changes would close this gap. |
 | L2 | State is in memory only. | Enrollments and the waitlist are lost on restart; the service cannot run as more than one instance. |
 | L3 | The waitlist holds `Learner` object references. | Correct only while each learner has a single in-memory object. A persistent implementation would store ids and load learners at promotion. |
 | L4 | Promotion scans the waitlist from the front. | Cost grows with the number of ineligible learners ahead of the first eligible one. Acceptable for one offering. |
 | L5 | Revoking a prerequisite does not remove an enrolled learner (P4). | An enrolled learner may no longer meet the prerequisite. This is the developer's stated policy, recorded here so it is not mistaken for a defect. |
 | L6 | The concurrency tests are probabilistic detectors. | With correct code they always pass (the class passed 15 of 15 consecutive runs after the corrections). Their ability to catch a missing lock was measured by disabling each lock in a scratch copy and running the class five times. Offering lock disabled: TC-C-02, TC-C-04, and TC-C-06 failed in 5 of 5 runs; TC-C-01 and TC-C-03 failed in 4 of 5 and passed once each; TC-C-05 passed in all 5, as expected, because it does not exercise the offering lock. Snapshot made non-atomic: TC-C-06 failed in 5 of 5. Learner eligibility check made non-atomic: TC-C-05 failed in 5 of 5. No single test is conclusive; the suite as a whole detected each fault in every run. Passing cannot prove the absence of every race. |
 | L7 | The single-value accessors (`enrolledLearnerIds`, `waitlistedLearnerIds`, `availableSeats`) are not atomic with each other. | A caller that combines two of them can see an inconsistent pair. `snapshot()` exists for that purpose and the API state query must use it. |
+| L8 | Learners can be registered but not removed, and the directory has no size limit. | Memory grows with registrations for the life of the process. Acceptable for an in-memory prototype. |
+| L9 | There is no authentication or authorization. | Any caller can register learners, change completions, and enroll or drop any learner. Identity integration is excluded by the brief; a real deployment would need it in front of this API. |
+| L10 | The HTTP-level concurrency tests (TC-A-19, TC-A-20) are weaker detectors than the in-process tests. | Network and JSON handling spread requests out. TC-A-19's first version (one round of 24 enrollments) did not detect a disabled offering lock or a non-atomic state read in 5 of 5 runs each. After strengthening (12 rounds of 32 concurrent enrollments and 32 concurrent drops with 4 readers) it detected the disabled lock in 7 of 8 runs and the non-atomic state read in 3 of 5. TC-A-20 detected a non-atomic registration in 1 of 5 runs; the in-process TC-S-07 detected it in 10 of 10 after being raised to 2,000 rounds (3 of 5 at 200 rounds). The evidence for the locks and for atomic registration is the in-process tests (L6, TC-S-07); the HTTP tests show the web layer adds no shared state of its own and reports results faithfully under load. |
+| L11 | **Resolved in the Step 2 review corrections.** Originally: a JSON number sent as a learner id was read as a string, so `{"learnerId": 5}` meant the id `"5"`. | JSON reading is now strict for text fields: a number or boolean where text is expected is rejected with 400 `INVALID_REQUEST` (`JsonConfiguration`, tested by TC-A-21). Kept in this table so the history is visible. |

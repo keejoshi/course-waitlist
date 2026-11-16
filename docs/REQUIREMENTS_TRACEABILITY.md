@@ -3,9 +3,9 @@
 Master checklist of every requirement and test for this assessment, and the
 matrix linking requirement, implementation, test, and result.
 
-**Last updated:** Step 1 (domain model) after the code-quality review corrections, 2026-11-15.
-**Last test run recorded here:** `./mvnw -B test` on 2026-11-15, OpenJDK 21.0.12 —
-45 run, 0 failed, 0 errors, 0 skipped. Verified by AI. **Verified by developer:
+**Last updated:** Step 2 (service layer and REST API) after the Step 2 review decisions and final cleanup, 2026-11-16.
+**Last test run recorded here:** `./mvnw -B test` on 2026-11-16, OpenJDK 21.0.12 —
+72 run, 0 failed, 0 errors, 0 skipped. Verified by AI. **Verified by developer:
 none recorded.**
 
 ## Rules
@@ -30,7 +30,7 @@ none recorded.**
 
 | For | Values |
 |-----|--------|
-| Tests | NOT IMPLEMENTED, NOT EXECUTED, PASSED, FAILED |
+| Tests | NOT IMPLEMENTED, NOT EXECUTED, PASSED, FAILED; NOT AN AUTOMATED TEST for a row converted to a review check |
 | Review checks | OPEN, EVIDENCED TO DATE (true at this commit, re-checked at each commit), PARTIAL, BLOCKED |
 | Requirements | NOT COVERED, PARTIAL, COVERED, BLOCKED |
 
@@ -41,11 +41,11 @@ requirement, by the developer's decision. It has no row here.
 
 | ID | Text from the brief | Type | Tests / evidence | Status |
 |----|---------------------|------|------------------|--------|
-| AC-1 | "Enrollment succeeds when capacity remains and the learner satisfies the stated prerequisite rule." | Behavioural | TC-D-01, 02, 03, 31; TC-C-01; TC-A-01 | COVERED at domain level; API test pending |
-| AC-2 | "When full, an eligible learner joins the waitlist once; duplicate enrollment requests do not create duplicate records." | Behavioural | TC-D-04, 05, 06, 25, 31, 35; TC-C-01, 02; TC-A-02, 03, 04 | COVERED at domain level; API tests pending |
-| AC-3 | "Dropping an enrolled learner opens a seat and promotes the earliest eligible waitlisted learner according to the documented eligibility policy." | Behavioural | TC-D-10, 11, 12, 23, 33; TC-C-03; TC-A-06, 12 | COVERED at domain level; API tests pending |
-| AC-4 | "An ineligible learner is not enrolled or promoted. The documented policy for skipping or retaining that learner is applied consistently." | Behavioural | TC-D-07, 08, 09, 13, 14, 15, 16, 18; TC-A-05 | COVERED at domain level; API test pending |
-| AC-5 | "Invalid requests and duplicate drops return clear results without corrupting enrollment, capacity, or waitlist state." | Behavioural | TC-D-19, 20, 22, 26, 27, 32, 36, 37; TC-C-03, 04; TC-A-07, 08, 09, 10 | COVERED at domain level; API tests pending |
+| AC-1 | "Enrollment succeeds when capacity remains and the learner satisfies the stated prerequisite rule." | Behavioural | TC-D-01, 02, 03, 31; TC-C-01; TC-A-01, 19 | COVERED: domain and API tests passed |
+| AC-2 | "When full, an eligible learner joins the waitlist once; duplicate enrollment requests do not create duplicate records." | Behavioural | TC-D-04, 05, 06, 25, 31, 35; TC-C-01, 02; TC-A-02, 03, 04, 19 | COVERED: domain and API tests passed |
+| AC-3 | "Dropping an enrolled learner opens a seat and promotes the earliest eligible waitlisted learner according to the documented eligibility policy." | Behavioural | TC-D-10, 11, 12, 23, 33; TC-C-03; TC-A-06, 12; TC-S-01 | COVERED: domain and API tests passed |
+| AC-4 | "An ineligible learner is not enrolled or promoted. The documented policy for skipping or retaining that learner is applied consistently." | Behavioural | TC-D-07, 08, 09, 13, 14, 15, 16, 18; TC-A-05, 14; TC-S-04 | COVERED: domain and API tests passed |
+| AC-5 | "Invalid requests and duplicate drops return clear results without corrupting enrollment, capacity, or waitlist state." | Behavioural | TC-D-19, 20, 22, 26, 27, 32, 36, 37; TC-C-03, 04; TC-A-07, 08, 09, 18; TC-S-02 | COVERED: domain and API tests passed |
 | AC-6 | "Tests cover available capacity, full capacity, duplicate requests, FIFO promotion, prerequisite failure, and invalid or repeated drops. If the starter uses concurrent requests, preserve its transaction or locking pattern and add a focused concurrency test where practical." | Behavioural (tests must exist and run) | Table A.1; RV-07 | COVERED: all six named scenarios have passing tests |
 | AC-7 | "Use AI for at least one engineering activity. Record the prompts used, relevant AI response or summary, whether each suggestion was accepted, edited, or rejected, and how the resulting work was verified." | Documentation | RV-01, RV-11 | EVIDENCED TO DATE |
 
@@ -59,7 +59,7 @@ requirement, by the developer's decision. It has no row here.
 | FIFO promotion | TC-D-11, 12 | PASSED |
 | Prerequisite failure | TC-D-07, 08, 09 | PASSED |
 | Invalid or repeated drops | TC-D-19, 20, 22 | PASSED |
-| Concurrency (conditional clause, not triggered: no starter) | TC-C-01, 02, 03, 04, 05, 06 | PASSED; added by design decision, see DESIGN.md section 6 |
+| Concurrency (conditional clause, not triggered: no starter) | TC-C-01, 02, 03, 04, 05, 06; TC-A-19, 20; TC-S-07 | PASSED; added by design decision, see DESIGN.md section 6 |
 
 ## B. Requirements
 
@@ -67,36 +67,40 @@ REQ-01 to REQ-14 decompose AC-1 to AC-6 into single testable statements; the
 verbatim text in section A is the authority.
 
 Component abbreviations: `CO` = `CourseOffering`, `L` = `Learner`, `C` = `Course`.
+Test id prefixes: `TC-D` domain, `TC-C` concurrency, `TC-A` API, `TC-S` service.
 
 ### B.1 Behavioural requirements
 
 | ID | Origin | Requirement | Component | Tests | Status |
 |----|--------|-------------|-----------|-------|--------|
-| REQ-01 | BRIEF AC-1 | Enrollment succeeds when capacity remains and the learner satisfies the prerequisite rule. | `CO.enroll`, `L.isEligibleFor` | TC-D-01, 02, 03, 31; TC-C-01; TC-A-01 | COVERED (domain) |
-| REQ-02 | BRIEF problem statement | A learner may enroll only once. | `CO.enroll` | TC-D-05, 23; TC-C-02 | COVERED (domain) |
-| REQ-03 | BRIEF AC-2 | When the offering is full, an eligible learner joins the waitlist. | `CO.enroll` | TC-D-04; TC-C-01; TC-A-02 | COVERED (domain) |
-| REQ-04 | BRIEF AC-2 | A learner joins the waitlist only once. | `CO.enroll` | TC-D-06, 35; TC-C-02; TC-A-04 | COVERED (domain) |
-| REQ-05 | BRIEF AC-2 | Duplicate enrollment requests do not create duplicate records. | `CO.enroll` | TC-D-05, 06, 25, 31, 35; TC-C-02; TC-A-03 | COVERED (domain) |
-| REQ-06 | BRIEF AC-3 | Dropping an enrolled learner opens a seat. | `CO.drop` | TC-D-10, 11; TC-A-06 | COVERED (domain) |
-| REQ-07 | BRIEF AC-3 | A drop promotes the earliest eligible waitlisted learner (FIFO). | `CO.drop`, promotion pass | TC-D-11, 12, 23, 25, 33; TC-C-03; TC-A-06, 12 | COVERED (domain) |
-| REQ-08 | BRIEF AC-4 | An ineligible learner is not enrolled, and is not waitlisted. | `CO.enroll`, `L.isEligibleFor` | TC-D-07, 08, 09; TC-A-05 | COVERED (domain) |
-| REQ-09 | BRIEF AC-4 | An ineligible learner is not promoted. | promotion pass | TC-D-13, 15 | COVERED |
-| REQ-10 | BRIEF AC-4, problem statement | The documented policy (skipped, retained in original position) is applied consistently. | promotion pass | TC-D-13, 14, 16, 18 | COVERED |
-| REQ-11 | BRIEF AC-5 | Invalid requests return clear results without corrupting enrollment, capacity, or waitlist state. | `CO`, `Require`, result types; API validation (pending) | TC-D-20, 26, 27, 32, 36, 37; TC-C-04; TC-A-05, 08, 09, 10 | COVERED (domain) |
-| REQ-12 | BRIEF AC-5 | Duplicate drops return clear results without corrupting state. | `CO.drop`, `DropResult` | TC-D-19, 22, 37; TC-C-03; TC-A-07 | COVERED (domain) |
+| REQ-01 | BRIEF AC-1 | Enrollment succeeds when capacity remains and the learner satisfies the prerequisite rule. | `CO.enroll`, `L.isEligibleFor`; `OfferingController.enroll` | TC-D-01, 02, 03, 31; TC-C-01; TC-A-01, 19 | COVERED |
+| REQ-02 | BRIEF problem statement | A learner may enroll only once. | `CO.enroll` | TC-D-05, 23; TC-C-02 | COVERED |
+| REQ-03 | BRIEF AC-2 | When the offering is full, an eligible learner joins the waitlist. | `CO.enroll` | TC-D-04; TC-C-01; TC-A-02, 19 | COVERED |
+| REQ-04 | BRIEF AC-2 | A learner joins the waitlist only once. | `CO.enroll` | TC-D-06, 35; TC-C-02; TC-A-04 | COVERED |
+| REQ-05 | BRIEF AC-2 | Duplicate enrollment requests do not create duplicate records. | `CO.enroll` | TC-D-05, 06, 25, 31, 35; TC-C-02; TC-A-03 | COVERED |
+| REQ-06 | BRIEF AC-3 | Dropping an enrolled learner opens a seat. | `CO.drop` | TC-D-10, 11; TC-A-06 | COVERED |
+| REQ-07 | BRIEF AC-3 | A drop promotes the earliest eligible waitlisted learner (FIFO). | `CO.drop`, promotion pass | TC-D-11, 12, 23, 25, 33; TC-C-03; TC-A-06, 12 | COVERED |
+| REQ-08 | BRIEF AC-4 | An ineligible learner is not enrolled, and is not waitlisted. | `CO.enroll`, `L.isEligibleFor` | TC-D-07, 08, 09; TC-A-05 | COVERED |
+| REQ-09 | BRIEF AC-4 | An ineligible learner is not promoted. | promotion pass | TC-D-13, 15; TC-A-14 | COVERED |
+| REQ-10 | BRIEF AC-4, problem statement | The documented policy (skipped, retained in original position) is applied consistently. | promotion pass | TC-D-13, 14, 16, 18; TC-A-14 | COVERED |
+| REQ-11 | BRIEF AC-5 | Invalid requests return clear results without corrupting enrollment, capacity, or waitlist state. | `CO`, `Require`, result types; request validation and `ApiExceptionHandler` | TC-D-20, 26, 27, 32, 36, 37; TC-C-04; TC-A-05, 08, 09, 16, 18, 21; TC-S-02 | COVERED |
+| REQ-12 | BRIEF AC-5 | Duplicate drops return clear results without corrupting state. | `CO.drop`, `DropResult`; `OfferingController.drop` | TC-D-19, 22, 37; TC-C-03; TC-A-07 | COVERED |
 | REQ-13 | BRIEF AC-6 | Tests cover the six named scenarios. | Test suite | TC-D-01, 02, 03, 04, 05, 06, 07, 08, 09, 11, 12, 19, 20, 22; summarised by scenario in Table A.1; RV-07 | COVERED |
-| REQ-14 | BRIEF AC-6 (conditional) | Preserve the starter's locking pattern and add a focused concurrency test where practical. Condition not triggered (no starter); concurrency tests added by design decision. | `CO` lock, `L` lock | TC-C-01, 02, 03, 04, 05, 06 | COVERED |
-| REQ-20 | BRIEF deliverables | Runnable code for the scoped feature and focused automated tests. | Whole project | TC-A-01, 13; supported by every other passing test | PARTIAL: domain built and tested; feature not yet reachable through the running service |
-| REQ-27 | DEV | Eligible waitlisted learners take an open seat before any new requester. | `CO.enroll`, promotion pass | TC-D-17, 18, 32, 33, 34 | COVERED |
-| REQ-28 | DEV | A waitlisted learner can leave the waitlist without affecting enrolled learners or triggering promotion. | `CO.drop` | TC-D-21, 22; TC-A-11 | COVERED (domain) |
-| REQ-29 | DEV | Duplicate enrollment and duplicate waitlist requests return HTTP 409. | REST layer (pending) | TC-A-03, 04 | NOT COVERED: API step |
-| REQ-30 | DEV | Prerequisites are checked at enrollment and at promotion; revocation does not remove enrolled learners. | `CO`, `L` | TC-D-16, 24, 28; TC-C-05 | COVERED |
+| REQ-14 | BRIEF AC-6 (conditional) | Preserve the starter's locking pattern and add a focused concurrency test where practical. Condition not triggered (no starter); concurrency tests added by design decision. | `CO` lock, `L` lock; no shared state added by the service or API | TC-C-01, 02, 03, 04, 05, 06; TC-A-19, 20; TC-S-07 | COVERED |
+| REQ-20 | BRIEF deliverables | Runnable code for the scoped feature and focused automated tests. | Whole project | TC-A-01, 13; TC-S-01; supported by every other passing test and a live run of the application | COVERED |
+| REQ-27 | DEV | Eligible waitlisted learners take an open seat before any new requester. | `CO.enroll`, promotion pass | TC-D-17, 18, 32, 33, 34; TC-A-15 | COVERED |
+| REQ-28 | DEV | A waitlisted learner can leave the waitlist without affecting enrolled learners or triggering promotion. | `CO.drop`; `OfferingController.drop` | TC-D-21, 22; TC-A-11 | COVERED |
+| REQ-29 | DEV | Duplicate enrollment and duplicate waitlist requests return HTTP 409. | `OfferingController`, `ApiExceptionHandler` | TC-A-03, 04 | COVERED |
+| REQ-30 | DEV | Prerequisites are checked at enrollment and at promotion; revocation does not remove enrolled learners. | `CO`, `L` | TC-D-16, 24, 28; TC-C-05; TC-A-14, 17; TC-S-04 | COVERED |
 | REQ-31 | DEV | If no eligible waiter exists, the seat stays vacant. | promotion pass | TC-D-15 | COVERED |
-| REQ-36 | DEV | `Course` is immutable, and identifiers are plain strings validated as non-blank. | `C`, `L`, `CO`, `Require` | TC-D-26, 27, 28, 29 | COVERED |
-| REQ-37 | DEV | `CourseOffering` owns the enrollment and waitlist state: it changes only through `enroll` and `drop`, and can be read as one consistent, immutable snapshot. | `CO.snapshot`, `OfferingSnapshot` | TC-D-30, 38; TC-C-06; TC-A-12 | COVERED (domain) |
+| REQ-36 | DEV | `Course` is immutable, and identifiers are plain strings validated as non-blank. | `C`, `L`, `CO`, `Require` | TC-D-26, 27, 28, 29; TC-S-06 | COVERED |
+| REQ-37 | DEV | `CourseOffering` owns the enrollment and waitlist state: it changes only through `enroll` and `drop`, and can be read as one consistent, immutable snapshot. | `CO.snapshot`, `OfferingSnapshot`; `EnrollmentService.offeringState` | TC-D-30, 38; TC-C-06; TC-A-12; TC-S-03, 05 | COVERED |
+| REQ-38 | DEV | Error responses use Spring `ProblemDetail` (`application/problem+json`) with a stable `code`. | `ApiExceptionHandler` | TC-A-09, 18, 21 | COVERED |
+| REQ-39 | DEV | The API uses immutable request and response types and never serializes a domain object or exposes internal mutable state. | Request and response records in `api`; `OfferingView`, `LearnerView` | TC-A-12, 16, 18, 22; TC-S-05 | COVERED |
+| REQ-40 | DEV | Learners and their completed courses can be registered and changed through the API, held in an in-memory directory with one object per learner. | `LearnerDirectory`, `EnrollmentService`, `LearnerController` | TC-A-16, 17, 20; TC-S-03, 04, 07 | COVERED |
 
-"COVERED (domain)" means at least one executed, passing domain test covers the
-requirement and one or more API tests for it are still NOT IMPLEMENTED.
+After Step 2 every behavioural requirement is COVERED: each has executed,
+passing tests, at the API level as well as the domain level where both apply.
 
 ### B.2 Documentation and scope requirements
 
@@ -104,10 +108,10 @@ requirement and one or more API tests for it are still NOT IMPLEMENTED.
 |----|--------|-------------|--------------|--------|
 | REQ-15 | BRIEF AC-7 | AI is used for at least one activity, with prompts, response summaries, accept/edit/reject decisions, and verification recorded. | RV-01 | EVIDENCED TO DATE |
 | REQ-16 | BRIEF problem statement, candidate expectations | The prerequisite and waitlist assumptions are stated, including what happens when an ineligible learner reaches the front of the queue. | RV-02 | COVERED |
-| REQ-17 | BRIEF problem statement, scope | One course offering only, with an in-memory store. | RV-05 | EVIDENCED TO DATE |
+| REQ-17 | BRIEF problem statement, scope | One course offering only, with an in-memory store. | RV-05, RV-13 | EVIDENCED TO DATE |
 | REQ-18 | BRIEF scope | No frontend, course catalog, payments, identity integrations, multi-term registration, deployment, or new database. | RV-05, RV-10 | EVIDENCED TO DATE |
 | REQ-19 | BRIEF scope | No configurable policy engine. | RV-10 | EVIDENCED TO DATE |
-| REQ-21 | BRIEF deliverables | Design specification covering service boundary, data/API design, enrollment and capacity invariants, waitlist-promotion rule, concurrency or persistence approach, and assumptions or tradeoffs. | RV-02 | PARTIAL: API design section pending |
+| REQ-21 | BRIEF deliverables | Design specification covering service boundary, data/API design, enrollment and capacity invariants, waitlist-promotion rule, concurrency or persistence approach, and assumptions or tradeoffs. | RV-02 | COVERED |
 | REQ-22 | BRIEF deliverables | AI record includes the files or decisions informed and verification evidence. | RV-01 | EVIDENCED TO DATE |
 | REQ-23 | BRIEF deliverables | Setup and run instructions, including the commands used to execute the tests. | RV-03 | COVERED |
 | REQ-24 | BRIEF deliverables | Concise summary of limitations or follow-up risks. | RV-04 | PARTIAL: limitations listed in DESIGN.md section 8; final summary pending |
@@ -183,26 +187,52 @@ probabilistic and is reported in `DESIGN.md`, limitation L6.
 | TC-C-05 | Eligibility is checked against one consistent set of completions: while a writer moves a learner between two prerequisites without ever holding both, 800,000 concurrent checks never report the learner eligible. (Review finding F2) | REQ-14, 30 | PASSED |
 | TC-C-06 | While 12 writers enroll and drop repeatedly, every snapshot taken by 4 readers is internally consistent: no learner in both lists, seat count agrees with the enrolled list, nobody waiting while a seat is free. (Review finding F1) | REQ-14, 37 | PASSED |
 
-### C.3 API tests (later step; provisional)
+### C.3 API tests
 
-Ids are fixed. Endpoints and status codes other than 409 are settled when the
-API design is approved.
+Test class `OfferingApiTest` unless stated. They run through the full Spring
+MVC stack with MockMvc, and each test starts from a fresh application context
+(empty offering, no learners). Every test asserts the response and then the
+offering state through `GET /api/offering`. TC-A-19 uses a real HTTP port.
 
 | ID | Scenario | Requirements | Status |
 |----|----------|--------------|--------|
-| TC-A-01 | Enroll request with capacity available returns success. | REQ-01, 20 | NOT IMPLEMENTED |
-| TC-A-02 | Enroll request when full returns a waitlisted result. | REQ-03 | NOT IMPLEMENTED |
-| TC-A-03 | Duplicate enrollment returns HTTP 409. | REQ-05, 29 | NOT IMPLEMENTED |
-| TC-A-04 | Duplicate waitlist request returns HTTP 409. | REQ-04, 29 | NOT IMPLEMENTED |
-| TC-A-05 | Prerequisite failure returns a clear error; state unchanged. | REQ-08, 11 | NOT IMPLEMENTED |
-| TC-A-06 | Drop returns success and reports the promoted learner. | REQ-06, 07 | NOT IMPLEMENTED |
-| TC-A-07 | Repeated drop returns a clear error; state unchanged. | REQ-12 | NOT IMPLEMENTED |
-| TC-A-08 | Unknown learner returns a clear error. *Provisional: expected to apply, because promotion-time checks require the service to hold learner state; to be confirmed against the API design.* | REQ-11 | NOT IMPLEMENTED |
-| TC-A-09 | Malformed or blank request returns a clear validation error. | REQ-11 | NOT IMPLEMENTED |
-| TC-A-10 | Unknown offering returns a clear error. *Provisional: may not apply if the single-offering API carries no offering id (REQ-17). No registry will be added for this test; a replacement review check will be proposed to the developer before this row changes.* | REQ-11 | NOT IMPLEMENTED |
-| TC-A-11 | Waitlisted learner leaves the waitlist through the API. | REQ-28 | NOT IMPLEMENTED |
-| TC-A-12 | State query shows enrolled learners and the waitlist in FIFO order, read from one atomic snapshot. | REQ-07, 37 | NOT IMPLEMENTED |
+| TC-A-01 | Enroll with a seat free: 200, status `ENROLLED`; the state query shows the learner. | REQ-01, 20 | PASSED |
+| TC-A-02 | Enroll when full: 200, status `WAITLISTED`; enrolled list unchanged. | REQ-03 | PASSED |
+| TC-A-03 | Enrolled learner enrolls again: 409 `ALREADY_ENROLLED`; state unchanged. | REQ-05, 29 | PASSED |
+| TC-A-04 | Waitlisted learner enrolls again: 409 `ALREADY_WAITLISTED`; position unchanged. | REQ-04, 29 | PASSED |
+| TC-A-05 | Ineligible learner, with a seat free and when full: 422 `PREREQUISITES_NOT_MET`; not enrolled, not waitlisted. | REQ-08, 11 | PASSED |
+| TC-A-06 | Drop: 200 `DROPPED`, reports the promoted learner; the state shows the promotion; a drop with nobody waiting reports none. | REQ-06, 07 | PASSED |
+| TC-A-07 | Repeated drop, and drop by a registered learner never enrolled: 409 `NOT_ENROLLED`; state unchanged. | REQ-12 | PASSED |
+| TC-A-08 | Unknown learner on enroll and on drop: 404 `LEARNER_NOT_FOUND`; state unchanged; the learner is not registered as a side effect. (Resolved: applies, because the service holds learner state.) | REQ-11 | PASSED |
+| TC-A-09 | Missing body, missing, null, blank or malformed id, over-long id, malformed JSON, invalid path id: 400 `INVALID_REQUEST`; wrong content type: 415; state unchanged. | REQ-11, 38 | PASSED |
+| TC-A-10 | *Converted to review check RV-13 by developer decision.* Originally "unknown offering returns a clear error". The API has one configured offering and no offering id, so there is no such request to test, and no registry or artificial endpoint was added for it. | REQ-17 (via RV-13) | NOT AN AUTOMATED TEST |
+| TC-A-11 | Waitlisted learner leaves through the API: 200 `DROPPED_FROM_WAITLIST`, nobody promoted, enrolled unchanged; leaving twice is 409. | REQ-28 | PASSED |
+| TC-A-12 | State query returns the configured offering, FIFO order after a sequence, and exactly the documented fields. | REQ-07, 37, 39 | PASSED |
 | TC-A-13 | Application context starts. (`CourseWaitlistApplicationTests.contextLoads`) | REQ-20 | PASSED |
+| TC-A-14 | Skip-and-retain through the API: revoke the head waiter's completion, drop, the next learner is promoted and the skipped learner keeps position, then is promoted after the completion is restored. Revoking an enrolled learner's completion does not remove them. | REQ-09, 10, 30 | PASSED |
+| TC-A-15 | Waitlist priority through the API: with one open seat and an eligible waiter, a new request is waitlisted and reports the promoted waiter. | REQ-27 | PASSED |
+| TC-A-16 | Learner registration: 201 with the documented fields; duplicate id 409 and the original learner intact; invalid input 400 and nothing registered. (`LearnerApiTest`) | REQ-11, 39, 40 | PASSED |
+| TC-A-17 | Mark and revoke completion: 204, repeatable, and they change eligibility; unknown learner 404; invalid values 400. (`LearnerApiTest`) | REQ-30, 40 | PASSED |
+| TC-A-18 | Every error, including framework errors and an unexpected failure, is an `application/problem+json` document with status, title, detail and `code`, and reveals no class name, stack trace, or internal message. | REQ-11, 38, 39 | PASSED |
+| TC-A-19 | Over real HTTP, 12 rounds: 32 learners enroll at once (exactly 2 enrolled, 30 waitlisted, responses agree with the state), then all drop at once (every drop succeeds once, offering ends empty), while 4 readers check every state read for consistency. (`EnrollmentApiConcurrencyTest`) | REQ-01, 03, 14 | PASSED |
+| TC-A-20 | Over real HTTP, 15 rounds: 24 simultaneous registrations of the same learner id. Exactly one is 201, the other 23 are 409 `LEARNER_ALREADY_EXISTS`, nothing else is returned, and the learner that exists has the winner's completions (shown by whether it can enroll). (`EnrollmentApiConcurrencyTest`; review finding S2-8) | REQ-14, 40 | PASSED |
+| TC-A-21 | A JSON number, boolean, array, or object where text is expected (learner id, name, course codes) is rejected with 400 `INVALID_REQUEST` and registers or enrolls nothing; the string id `"5"` still works; ids containing `.`, `_`, `-` work in bodies and paths. (`LearnerApiTest`; review finding S2-7) | REQ-11, 38 | PASSED |
+| TC-A-22 | `RegisterLearnerRequest` copies its course list: changing the original list cannot change the request, the copy is unmodifiable, an omitted list is empty, and a null element is kept for validation to reject. (`RegisterLearnerRequestTest`, plain JUnit; review finding S2-12) | REQ-39 | PASSED |
+
+### C.4 Service tests
+
+Test class `EnrollmentServiceTest` unless stated; plain JUnit, no Spring
+context.
+
+| ID | Scenario | Requirements | Status |
+|----|----------|--------------|--------|
+| TC-S-01 | Service enroll and drop resolve the registered learner and return the domain result. | REQ-20 | PASSED |
+| TC-S-02 | An unknown learner is rejected by every service operation; state unchanged; nothing registered as a side effect. | REQ-11 | PASSED |
+| TC-S-03 | Registering an id twice is rejected and the original `Learner` object, name, and completions are kept. | REQ-37, 40 | PASSED |
+| TC-S-04 | A completion change made through the service is seen at the next promotion; marking a completion does not itself fill a seat (L1). | REQ-30, 40 | PASSED |
+| TC-S-05 | The offering view matches the domain snapshot, is immutable, and does not follow later changes. | REQ-37, 39 | PASSED |
+| TC-S-06 | The single offering is built from configuration; capacity below 1, missing configuration, or a self-prerequisite stops startup. (`OfferingConfigurationTest`) | REQ-36 | PASSED |
+| TC-S-07 | 2,000 rounds: 24 threads register the same learner id at once with different data. Exactly one succeeds, 23 get the duplicate result, no other exception occurs, the directory holds exactly one learner, and it carries the winner's name and completions unmixed. Bounded by 10-second timeouts. (Review finding S2-8) | REQ-14, 40 | PASSED |
 
 ## D. Review checks (AI-DERIVED)
 
@@ -211,72 +241,80 @@ only where the developer has explicitly confirmed a check.
 
 | ID | Check | Requirements | Status | Evidence at this commit |
 |----|-------|--------------|--------|-------------------------|
-| RV-01 | `docs/AI_USAGE.md` has prompts, output summaries, developer decisions, files informed, and verification for every AI activity. | REQ-15, 22 | EVIDENCED TO DATE | `docs/AI_USAGE.md` entries 1-10 cover every session activity to this point, including the code-quality review, its corrections, and the acceptance review. |
-| RV-02 | `docs/DESIGN.md` covers every topic the brief lists and states the assumptions. | REQ-16, 21 | PARTIAL | Sections 1-6 and 8 written and updated after the code-quality review; assumptions and the ineligible-at-front policy are in section 2 (W3, W4). Section 7 (API) pending. |
-| RV-03 | README setup and test commands are present and were actually run. | REQ-23 | COVERED | `README.md` "Setup and run". `./mvnw -B test` and `./mvnw -B spring-boot:run` were run (Verified by AI). `mvnw.cmd` not run on Windows. |
-| RV-04 | Limitations and follow-up risks are written up. | REQ-24 | PARTIAL | `docs/DESIGN.md` section 8 (L1-L7). Final summary pending. |
-| RV-05 | Dependencies and source tree hold one offering, in-memory state, and none of the excluded items. | REQ-17, 18 | EVIDENCED TO DATE | `git diff --stat HEAD -- pom.xml` is empty: dependencies unchanged since Step 0. `./mvnw dependency:tree` shows only the web, validation, and test starters. New source files are Java classes in the `domain` package only. |
-| RV-06 | No credentials or secrets in the repository or prompt records. | REQ-25 | EVIDENCED TO DATE | Keyword search (`password`, `secret`, `api key`, `token`, `bearer`, `private key`) over the working tree: the only matches are the Maven wrapper scripts' own optional `MVNW_PASSWORD` handling and the words used in documentation rules. No values found. |
+| RV-01 | `docs/AI_USAGE.md` has prompts, output summaries, developer decisions, files informed, and verification for every AI activity. | REQ-15, 22 | EVIDENCED TO DATE | `docs/AI_USAGE.md` entries 1-15 cover every session activity to this point, including the Step 2 design proposal, implementation, review corrections, and final cleanup. The stop-hook table lists all nine automated messages. |
+| RV-02 | `docs/DESIGN.md` covers every topic the brief lists and states the assumptions. | REQ-16, 21 | COVERED | `docs/DESIGN.md` sections 1-8: service boundary (1, 7.1), data and API design (3, 7), invariants (4), promotion rule (5), concurrency and persistence (6), assumptions and tradeoffs (2, 7.5, 8). The ineligible-at-front policy is W3 and W4 in section 2. |
+| RV-03 | README setup and test commands are present and were actually run. | REQ-23 | COVERED | `README.md` "Setup and run" and "Using the API". `./mvnw -B test` run (72 passed) and `./mvnw -B spring-boot:run` run with the README's `curl` calls issued against it (Verified by AI). `mvnw.cmd` not run on Windows. |
+| RV-04 | Limitations and follow-up risks are written up. | REQ-24 | PARTIAL | `docs/DESIGN.md` section 8 (L1-L11; L11 is recorded as resolved). The final summary deliverable is pending. |
+| RV-05 | Dependencies and source tree hold one offering, in-memory state, and none of the excluded items. | REQ-17, 18 | EVIDENCED TO DATE | `git diff --stat HEAD -- pom.xml` is empty: dependencies unchanged since Step 0 (web, validation, test starters only). State is held in `CourseOffering` and `LearnerDirectory` objects; there is no database, file, or cache. |
+| RV-06 | No credentials or secrets in the repository or prompt records. | REQ-25 | EVIDENCED TO DATE | Keyword search (`password`, `secret`, `api key`, `token`, `bearer`, `private key`) over `src`, `docs`, and `README.md`: the only matches are the words used in documentation rules and in this table. No values found. The Maven wrapper scripts, unchanged since Step 0, mention their own optional `MVNW_PASSWORD` variable. |
 | RV-07 | Every scenario named in AC-6 maps to at least one executed, passing test. | REQ-13 | COVERED | Table A.1; surefire reports from the run recorded at the top of this file. |
 | RV-08 | Rubric self-rating completed. | REQ-26 | BLOCKED | `Course-Registration-Rubric-Score.md` has not been provided. No rating has been written or guessed. |
 | RV-09 | The existing project was inspected before implementation; the minimal-service fallback is justified. | REQ-32 | COVERED | Repository inspected by command before Step 0 (empty) and before Step 1 (Step 0 skeleton only); see the development log. Fallback justification: `docs/DESIGN.md` section 1. |
-| RV-10 | No separate greenfield, brownfield, or ambiguous scenarios; no frontend, policy engine, or excluded infrastructure. | REQ-18, 19, 33 | EVIDENCED TO DATE | One scenario is implemented: the single-offering slice. Source tree contains only Java and `application.yaml`. Policies are fixed in `CourseOffering` and `Learner`; there is no rule configuration, strategy interface, or policy type. No Docker, CI, or deployment files. |
-| RV-11 | Independent AI review: what AI contributed, what the developer accepted, modified, or rejected, and how changes were independently verified. | REQ-34 | PARTIAL | AI contributions and developer decisions are recorded per entry in `docs/AI_USAGE.md`. Verification so far is "Verified by AI": commands run in session, the AI's code-quality review of its own work (entry 8), and fault-injection checks (entries 7 and 9). These are the AI checking its own output and do not count as independent review. **Verified by developer: none recorded. This stays PARTIAL until the developer personally reviews and confirms.** |
+| RV-10 | No separate greenfield, brownfield, or ambiguous scenarios; no frontend, policy engine, or excluded infrastructure. | REQ-18, 19, 33 | EVIDENCED TO DATE | One scenario is implemented: the single-offering slice. The source tree contains only Java and `application.yaml`: no frontend, Docker, CI, or deployment files. Policies are fixed in `CourseOffering` and `Learner`; the only configuration is the offering's own data (id, course, prerequisites, capacity), not its rules. The learner endpoints are an in-memory store needed for promotion-time eligibility, not an identity integration or a course catalog: completions are bare course codes and no course list exists. |
+| RV-11 | Independent AI review: what AI contributed, what the developer accepted, modified, or rejected, and how changes were independently verified. | REQ-34 | PARTIAL | AI contributions and developer decisions are recorded per entry in `docs/AI_USAGE.md`. Verification so far is "Verified by AI": commands run in session, the AI's reviews of its own work (entries 8 and 13), and fault-injection checks (entries 7, 9, 13). These are the AI checking its own output and do not count as independent review. **Verified by developer: none recorded. This stays PARTIAL until the developer personally reviews and confirms.** |
 | RV-12 | Implementation and all deliverables are submitted together. | REQ-35 | OPEN | Final submission. |
+| RV-13 | Single offering: the API has one configured offering, no offering id, and no offering registry. (Replaces TC-A-10 by developer decision.) | REQ-17 | COVERED | No path in `OfferingController` or `LearnerController` carries an offering id. One `CourseOffering` bean is created in `OfferingConfiguration`; TC-S-06 asserts the context has a single such bean. TC-A-12 asserts `GET /api/offering` returns the configured offering. TC-A-18 asserts that paths carrying an offering id (`/api/offerings/CS201-A/...`) are not found. No class holds a collection of offerings. |
+| RV-14 | The API never serializes a domain object. | REQ-39 | COVERED | Every controller method returns a record from the `api` package or nothing. The `api` package imports only `EnrollmentResult` and `DropResult` from the domain, both immutable records, and only to copy their values into responses; it does not reference `Learner`, `Course`, `CourseOffering`, or `OfferingSnapshot` (checked by search). TC-A-12 and TC-A-16 assert the exact set of JSON fields. |
 
 ## E. Coverage summary
 
-Recomputed after the code-quality review corrections, for the proposed Step 1
-commit.
+Recomputed after the Step 2 final cleanup, for the proposed Step 2 commit.
 
 | Measure | Count |
 |---------|-------|
-| Total requirements | 37 (22 behavioural, 15 documentation/scope) |
-| Requirements by origin | 30 BRIEF, 7 DEV |
-| Behavioural requirements covered by executed passing tests | 20 of 22 |
-| Behavioural requirements partial | 1 (REQ-20) |
-| Behavioural requirements not covered | 1 (REQ-29, HTTP 409 mapping: API step) |
-| Documentation/scope requirements covered or evidenced to date | 10 of 15 |
-| Documentation/scope requirements partial | 3 (REQ-21, 24, 34) |
+| Total requirements | 40 (25 behavioural, 15 documentation/scope) |
+| Requirements by origin | 30 BRIEF, 10 DEV |
+| Behavioural requirements covered by executed passing tests | 25 of 25 |
+| Behavioural requirements partial or not covered | 0 |
+| Documentation/scope requirements covered or evidenced to date | 11 of 15 |
+| Documentation/scope requirements partial | 2 (REQ-24, 34) |
 | Documentation/scope requirements open | 1 (REQ-35) |
 | Documentation/scope requirements blocked | 1 (REQ-26) |
-| Requirements implemented in code (behavioural) | 20 fully; REQ-20 partly; REQ-29 not yet |
-| Automated tests planned | 57 (38 domain, 6 concurrency, 13 API) |
-| Tests implemented | 45 |
-| Tests executed and passed | 45 |
+| Requirements implemented in code (behavioural) | 25 of 25 |
+| Automated tests planned | 72 (38 domain, 6 concurrency, 21 API, 7 service) |
+| Tests implemented | 72 |
+| Tests executed and passed | 72 |
 | Tests failed | 0 |
-| Tests not yet implemented | 12 (TC-A-01 to TC-A-12) |
+| Tests not yet implemented | 0 |
 | Tests implemented but not executed | 0 |
-| Review checks | 12: 3 covered, 4 evidenced to date, 3 partial, 1 open, 1 blocked |
+| Review checks | 14: 6 covered, 4 evidenced to date, 2 partial, 1 open, 1 blocked |
+
+TC-A-10 is no longer counted as an automated test: by developer decision it is
+review check RV-13.
 
 Every mapping in sections B.1 and C was checked in both directions by script:
 each test listed by a requirement lists that requirement, and the reverse.
-Each of the 44 domain and concurrency ids was matched to a test method that
-appears as passed in the surefire report of the run recorded at the top.
+Each of the 71 test ids other than TC-A-13 was matched to a test method that
+appears as passed in the surefire report of the run recorded at the top;
+TC-A-13 is `contextLoads`, which also passed.
 
-### Changes since the first Step 1 checklist
+### Changes in Step 2
 
 | Change | Reason |
 |--------|--------|
-| REQ-36 added (DEV) | The approved decisions "Course is immutable" and "string ids with non-blank validation" had no id. TC-D-29 was wrongly mapped to REQ-17. |
-| REQ-37 added (DEV) | The approved decision "CourseOffering owns enrollment and waitlist state" had no id. Covers the atomic snapshot; TC-D-30 was loosely mapped to REQ-11. |
-| TC-D-34 to TC-D-38, TC-C-05, TC-C-06 added | Code-quality review findings F1, F2, F3, T3, T4, T6. |
-| TC-D-21, TC-D-24, TC-C-03 strengthened | Review findings T1, T5, T2. |
-| REQ-13 and REQ-20 now name their tests; TC-D-02, 03, 08, 09 now cite REQ-13 | Review findings D1, D2, D4. |
+| REQ-38, REQ-39, REQ-40 added (DEV) | Approved by the developer with the Step 2 design: `ProblemDetail` errors, no exposed domain state, learner endpoints. |
+| TC-A-14 to TC-A-19 and TC-S-01 to TC-S-06 added | Approved with the Step 2 design. |
+| TC-A-01 to TC-A-12 rewritten against the final API | Status codes follow the developer's decisions: 200 for both `ENROLLED` and `WAITLISTED`; 409 `NOT_ENROLLED`; 404 `LEARNER_NOT_FOUND`; 422 for prerequisite failure. |
+| TC-A-08 resolved as applicable | The service holds learner state, so an unknown learner id is a real invalid request. |
+| TC-A-10 converted to RV-13 | Developer decision: keep it as a design/review check; no offering registry or artificial endpoint. |
+| RV-14 added | Review evidence for REQ-39 alongside its tests. |
+| TC-S-07, TC-A-20 added | Developer's Step 2 review, correction 1 (finding S2-8): concurrent registration of the same learner id. |
+| TC-A-21 added | Developer's Step 2 review, correction 2 (finding S2-7, limitation L11): JSON numbers are no longer read as text. |
+| TC-A-22 added; REQ-39 wording now covers request types | Developer's decision on S2-12: `RegisterLearnerRequest` defensively copies its list. |
+| REQ-20, REQ-29 now COVERED; "COVERED (domain)" rows now COVERED | The API tests exist and passed. |
 
 ### Acceptance criteria
 
 | AC | Status |
 |----|--------|
-| AC-1 to AC-5 | Each has executed, passing domain tests. API-level tests pending. |
+| AC-1 to AC-5 | Each has executed, passing tests at both the domain and the API level. |
 | AC-6 | All six named scenarios have executed, passing tests. Concurrency tests added although the clause is not triggered. |
 | AC-7 | Evidenced to date by review (RV-01); developer verification not yet recorded (RV-11). |
 
 ### Outstanding gaps
 
-- **BLOCKED:** REQ-26 — rubric file not provided.
-- **NOT COVERED:** REQ-29 — HTTP 409 mapping; needs the REST layer.
-- **PARTIAL:** REQ-20 (service not yet exposing the feature), REQ-21 (API design section), REQ-24 (final limitations summary), REQ-34 (developer verification not recorded).
+- **BLOCKED:** REQ-26 — rubric file `Course-Registration-Rubric-Score.md` not provided. No self-rating has been written.
+- **PARTIAL:** REQ-24 — limitations are listed in `DESIGN.md` section 8; the final summary deliverable is pending.
+- **PARTIAL:** REQ-34 — developer verification not recorded.
 - **OPEN:** REQ-35 — final submission.
-- **Provisional rows:** TC-A-08 and TC-A-10, to be confirmed against the API design.
 - **Not verified:** a build on an actual JDK 17; `mvnw.cmd` on Windows.

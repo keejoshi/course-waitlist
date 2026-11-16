@@ -592,6 +592,297 @@ inaccurate in the commit, and corrected only those:
 
 ---
 
+## Entry 11 — Step 1 commit and push
+
+**Date:** 2026-11-15 (recorded 2026-11-16)
+**Activity:** Version control operations, each on explicit developer approval.
+
+**Prompts (two messages, condensed):**
+
+> (a) I explicitly authorize you to stage and commit the accepted Step 1
+> changes only. Commit only the 17 reviewed Step 1 files. Do not modify main.
+> Do not push yet. Preserve Keerthi Joshi as commit author and Claude as
+> co-author using the previously approved identity format. Use the approved
+> Step 1 commit message. After committing, report the commit hash,
+> author/co-author, branch, and working-tree status. Do not perform any
+> additional changes or commits.
+>
+> (b) I explicitly authorize pushing the existing Step 1 commit
+> `2cc6d95709b15f13169dec5e5a0f8c7abbf71232` to the remote branch
+> `feature/initial-setup`. Push this exact commit only. Do not amend or create
+> another commit. Do not modify main or create a main branch. Do not merge.
+> After pushing, verify the remote branch points to exactly this commit.
+
+**AI output summary and developer decisions:**
+
+| # | AI output | Developer decision |
+|---|-----------|--------------------|
+| 1 | Staged exactly the 17 reviewed files and committed them as `2cc6d95709b15f13169dec5e5a0f8c7abbf71232`, authored as Keerthi Joshi with the Claude co-author trailer. Made no other change. | Accepted by developer — authorized the push of this commit |
+| 2 | Reported that, because no additional changes were allowed, the committed documents still said "Developer review: pending" for Step 1 and listed five stop-hook messages, and proposed recording both in the next documentation update. | Accepted by developer — Step 2 instructions, Phase A: "Record Step 1 acceptance" and "Record the sixth stop-hook occurrence" |
+| 3 | Pushed that commit to `feature/initial-setup` only. | Accepted by developer — "Step 1 is accepted, committed, and pushed." |
+
+**Effect on earlier entries:** Entries 7, 9, and 10 show "Developer review:
+pending" against the Step 1 code, tests, corrections, and documents. They are
+left as written because that was the state when each was recorded. The
+developer's acceptance of Step 1 as a whole is recorded here, by the
+statement quoted in row 3. It was given on the basis of the AI's reports.
+
+**Verification:**
+
+- Verified by AI — `git diff --cached --name-only` before the commit: 17 files.
+- Verified by AI — `git log -1` and `git status` after the commit: approved author, message, and trailer; clean working tree.
+- Verified by AI — `git ls-remote origin` after the push: one branch, `feature/initial-setup`, at `2cc6d95709b15f13169dec5e5a0f8c7abbf71232`; no `main`.
+- Verified by developer: none recorded.
+- Not verified: how GitHub displays the author, committer, and signature.
+
+**Files/decisions informed:** commit `2cc6d95`; remote branch `feature/initial-setup`.
+
+---
+
+## Entry 12 — Step 2 design proposal
+
+**Date:** 2026-11-16
+**Activity:** Design proposal and review for the service layer and REST API, before any code.
+
+**Prompt (condensed):**
+
+> We are beginning Step 2: Service Layer & REST API. Step 1 is accepted,
+> committed, and pushed. Preserve the accepted domain model unless a justified
+> issue is identified and approved. Do not start implementation yet.
+> Phase A: record Step 1 acceptance in the development log and AI usage
+> record; record the sixth stop-hook occurrence; keep historical records
+> accurate; do not create a commit. Phase B: inspect the repository and
+> prepare a design proposal covering (1) the service layer: boundary, how it
+> uses CourseOffering and Learner, how references are resolved, no unnecessary
+> registries, one-offering scope; (2) the REST API: endpoints, DTOs,
+> validation, status codes and ProblemDetail errors, 409 for duplicates,
+> prerequisite failures, invalid requests, unknown learner/offering, drop
+> behaviour including waitlist withdrawal and promotion reporting, no exposed
+> mutable domain state; (3) a test plan mapped to TC-A-01 to TC-A-12,
+> resolving provisional TC-A-08 and TC-A-10; (4) traceability; (5) decisions
+> requiring approval, without silently inventing behaviour; (6) documentation
+> updates. Stop after presenting the proposal.
+
+**AI output summary:** Recorded Step 1 acceptance (Entry 11) and the sixth
+hook message. Proposed the architecture, six endpoints, error table, test
+matrix, and eight decisions, each with a recommendation and alternatives. It
+argued that a learner store is required by the approved promotion-time policy
+and is not a registry added for a test, and that no domain change was needed.
+
+| # | AI suggestion | Developer decision |
+|---|---------------|--------------------|
+| 1 | In-memory `LearnerDirectory` with three learner endpoints (recommended over seeding from configuration, or sending completions with each request). | Accepted by developer |
+| 2 | One offering configured in `application.yaml`. | Accepted by developer |
+| 3 | No offering id in any path; replace TC-A-10 with an automated test that a path carrying an offering id is not found, plus a review check. | Modified by developer — keep TC-A-10 as a design/review check only; no artificial endpoint |
+| 4 | 201 for `ENROLLED` and 202 for `WAITLISTED`. | Modified by developer — 200 for both, distinguished by the `status` field |
+| 5 | 422 for a prerequisite failure. | Accepted by developer |
+| 6 | 404 `NOT_ENROLLED` for a drop by a learner who holds nothing; 404 `LEARNER_NOT_FOUND` for an unknown id. | First part rejected by developer — 409 `NOT_ENROLLED`. Second part accepted |
+| 7 | Keep limitation L1; make no domain change. | Accepted by developer |
+| 8 | REQ-38 to REQ-40, TC-A-14 to TC-A-19, TC-S-01 to TC-S-06. | Accepted by developer |
+| 9 | `ProblemDetail` errors with an added `code`; immutable response records; identifier format rule; fresh context per API test. | Accepted by developer as part of "The Step 2 design is approved"; not named individually |
+
+Basis for the labels: the developer wrote "The Step 2 design is approved with
+the following decisions" and listed decisions 1 to 8 as recorded above.
+
+**Verification:** Verified by AI — `git status` and `git ls-remote origin`
+confirmed a clean tree at the Step 1 commit before the proposal. There was no
+code to test at this point. Verified by developer: none recorded.
+
+**Files/decisions informed:** `docs/DESIGN.md` section 7; every Step 2 source and test file.
+
+---
+
+## Entry 13 — Step 2 implementation and self-review
+
+**Date:** 2026-11-16
+**Activity:** Code generation, test generation, self-review, and documentation.
+
+**Prompt (condensed):**
+
+> The Step 2 design is approved with the following decisions: [1 to 8, as in
+> Entry 12]. Use immutable response DTOs and never serialize domain objects.
+> Use atomic CourseOffering.snapshot() for offering state. Preserve existing
+> domain invariants and locking. Keep TC-A-10 as a design/review check; do not
+> invent an offering registry or artificial endpoint. Update test status only
+> after implementation and execution. Correct RV-01's stale Entry 10
+> reference. Record Step 1 acceptance and stop-hook occurrence 7 accurately.
+> Preserve historical records. Implement Step 2 now: OfferingProperties and
+> configuration; LearnerDirectory and EnrollmentService; REST controllers,
+> DTOs, validation and ProblemDetail handling; service and API tests from the
+> approved matrix; documentation and traceability; run the full Maven suite
+> and relevant fault-injection checks; review your own implementation and
+> report findings. Do not commit, push, merge, or modify main.
+
+**AI output summary and developer decisions:**
+
+| # | AI output | Developer decision |
+|---|-----------|--------------------|
+| 1 | `config`, `service`, and `api` packages as designed; offering data in `application.yaml`. No file in `domain` and no dependency changed. | Developer review: pending |
+| 2 | Status codes per the developer's decisions: 200 for `ENROLLED` and `WAITLISTED`; 409 for duplicates and `NOT_ENROLLED`; 422 for a prerequisite failure; 404 for an unknown learner. | Developer review: pending |
+| 3 | One `EnrollmentService` facade; one exception handler that also covers framework errors; `putIfAbsent` for registration. | AI-suggested; Developer review: pending |
+| 4 | 23 new tests: TC-A-01 to 09, 11, 12, 14 to 19 and TC-S-01 to 06. TC-A-10 is review check RV-13, with no test and no endpoint. | Developer review: pending |
+| 5 | Extra error codes for framework errors that the proposal had not listed: `NOT_FOUND` (unknown path), `METHOD_NOT_ALLOWED`, `UNSUPPORTED_MEDIA_TYPE`, `INTERNAL_ERROR`. | AI-suggested; Developer review: pending |
+| 6 | RV-14 added as review evidence that no domain object is serialized. | AI-suggested; Developer review: pending |
+| 7 | Self-review: nine findings (S2-1 to S2-9 in the development log). Four were fixed in the same change; three were recorded as limitations L8, L9, L11; two left open or accepted. | Developer review: pending |
+| 8 | Documentation: `DESIGN.md` section 7 and L8-L11; traceability regenerated; README endpoint table and `curl` walk-through; RV-01 reference corrected; hook 7 recorded. | Developer review: pending |
+
+**Verification:**
+
+- Verified by AI — `./mvnw -B test`: `Tests run: 68, Failures: 0, Errors: 0, Skipped: 0`, BUILD SUCCESS.
+- Verified by AI — the two concurrency test classes run 8 times in a row: 8 of 8 passed.
+- Verified by AI — application started with `./mvnw spring-boot:run` and each endpoint called with `curl`; statuses, bodies, and media types matched the design.
+- Verified by AI — mapping cross-check script: no mismatch; 67 ids matched to passed methods, plus `contextLoads`.
+- Verified by AI — `git diff --stat HEAD -- pom.xml` and the `domain` package: empty.
+- Verified by AI — fault injection in a scratch copy outside the repository:
+
+| Fault | Failed |
+|-------|--------|
+| N1 Duplicate enrollment answered 200 | TC-A-03, 18 |
+| N2 Unknown learner registered on the fly | TC-A-08, 16, 17, 18; TC-S-02 |
+| N3 Re-registration replaces the learner | TC-A-16, 18; TC-S-03 |
+| N5 Prerequisite failure answered 409 | TC-A-05, 16, 17, 18 |
+| N6 Enroll request validation removed | TC-A-09, 18 |
+| N7 Not-enrolled drop answered 200 | TC-A-07, 11, 18 |
+| N8 No handler for an unknown learner | TC-A-08, 16, 17, 18 |
+| N10 Configured capacity ignored | TC-S-06 |
+| N11 Unexpected failure leaks its cause | TC-A-18 |
+| N12 Enrollment answered 201 | TC-A-01, 02, 03, 15, 16, 17 |
+| N9 Offering lock disabled (TC-A-19, 5 runs) | 0 of 5 with the first version of the test; 5 of 5 after it was strengthened |
+| N4 Non-atomic state read (TC-A-19, 5 runs) | 0 of 5 with the first version; 3 of 5 after strengthening |
+
+- Verified by developer: none recorded.
+- Not verified: a build on an actual JDK 17; `mvnw.cmd` on Windows.
+
+**Candid notes:** all Step 2 code, tests, and document text were written by
+the AI. The 68 tests passed on their first full run, which is why the fault
+injections were run. They exposed one test, TC-A-19, that could not fail for
+the faults it was meant to catch; it was rewritten and is still only a
+partial detector for a non-atomic state read (3 of 5). A checker script the
+AI used for the traceability matrix also had a defect: it treated any test
+with captured log output as not passed, which wrongly flagged the Spring-based
+tests; the script was corrected and re-run. The self-review is the AI
+reviewing its own work and does not replace the developer's review.
+
+**Files informed:** the 19 new source files under `config`, `service`, and
+`api`; `application.yaml`; the 6 new test files; `README.md`; and the four
+documents under `docs/`.
+
+---
+
+## Entry 14 — Step 2 review corrections
+
+**Date:** 2026-11-16
+**Activity:** Code, test, and documentation corrections from the developer's Step 2 review, and a review of the full Step 2 diff.
+
+**Prompt (condensed):**
+
+> Step 2 review: add the following final corrections before acceptance
+> preparation. (1) Add a concurrent duplicate-learner-registration test for
+> S2-8: multiple concurrent registrations using the same ID; exactly one
+> succeeds; all others receive the duplicate-registration result; exactly one
+> learner remains in the directory; the successful learner's original data is
+> preserved; no unexpected exceptions or corrupted state; use a bounded
+> timeout and repeat the test to check stability. (2) Review L11: reject JSON
+> numeric learner IDs rather than silently converting them into strings; add
+> an executable API test; keep the validation approach simple and consistent;
+> if the fix would require disproportionate complexity, explain and leave the
+> limitation documented. (3) Update docs and traceability: add the new tests
+> and mappings; update counts only after execution; record this review
+> activity; add stop-hook occurrence 8; preserve historical records; do not
+> claim developer verification. (4) Run the complete suite and repeat the
+> concurrency tests. (5) Re-run the traceability checker and relevant mutation
+> checks. (6) Review the full Step 2 diff and identify any remaining issues.
+> (7) Report. Do not commit, push, merge, or modify main. Do not begin Step 3.
+
+**AI output summary and developer decisions:**
+
+| # | AI output | Developer decision |
+|---|-----------|--------------------|
+| 1 | TC-S-07: in-process test, 24 threads registering one id with different data, asserting every condition the developer listed. Added `LearnerDirectory.size()` so "exactly one learner remains" can be asserted. | Developer review: pending |
+| 2 | TC-A-20: the same scenario over real HTTP (one 201, the rest 409). Not requested separately; added so the duplicate-registration status code is also checked under concurrency. | AI-suggested; Developer review: pending |
+| 3 | L11 fixed, not left as a limitation: one Jackson setting in a new `JsonConfiguration` class rejects numbers and booleans for text fields. It applies to every text field, not only learner ids, which is slightly wider than asked. Judged proportionate: one small class, no new dependency, and it reuses the existing 400 path. | AI-suggested (scope of the setting); Developer review: pending |
+| 4 | TC-A-21 for the rejection, extended to check that ids containing `.`, `_`, `-` work in bodies and paths. | Developer review: pending |
+| 5 | After fault injection showed TC-S-07 catching a non-atomic registration in only 3 of 5 runs, raised it from 200 to 2,000 rounds. | AI-suggested; Developer review: pending |
+| 6 | Full-diff review: four further findings (S2-10 to S2-13 in the development log); one fixed, one recorded in L10, two left for the developer. | Developer review: pending |
+| 7 | Documents updated; stop-hook message 8 recorded; earlier entries left as written, including the S2-7 and S2-8 rows that describe the state before this correction. | Developer review: pending |
+
+**Verification:**
+
+- Verified by AI — `./mvnw -B test`: `Tests run: 71, Failures: 0, Errors: 0, Skipped: 0`, BUILD SUCCESS.
+- Verified by AI — the three classes containing concurrency tests, run 10 times in a row, twice: 10 of 10 both times.
+- Verified by AI — mapping cross-check script: no mismatch; 70 ids matched to passed methods, plus `contextLoads`.
+- Verified by AI — compile with `-Xlint:all` in a scratch copy: no warnings.
+- Verified by AI — fault injection in a scratch copy:
+  - registration made check-then-put: TC-S-07 failed in 3 of 5 runs at 200 rounds and in 10 of 10 at 2,000 rounds; TC-A-20 failed in 1 of 5;
+  - strict JSON switched off, and limited to integers only: TC-A-21 failed in both cases;
+  - re-registration replacing the learner: TC-A-16, 18, 20 and TC-S-03, 07 failed;
+  - unknown learner registered on the fly: TC-A-08, 16, 17, 18, 21 and TC-S-02 failed;
+  - enroll validation removed: TC-A-09, 18 failed;
+  - offering lock disabled: TC-A-19 failed in 2 of 3 further runs (7 of 8 overall).
+- Verified by developer: none recorded.
+- Not verified: a build on an actual JDK 17; `mvnw.cmd` on Windows.
+
+**Candid notes:** one fault-injection command was stopped by the
+environment's safety check because it deleted a file through a shell
+variable; nothing was deleted, and the check was re-run by switching the
+setting off in the scratch copy instead. Both new concurrency tests passed on
+first writing, and again the fault injection, not the pass, showed that one
+of them was too weak. This remains the AI checking its own work.
+
+**Files informed:** `LearnerDirectory.java`, `JsonConfiguration.java` (new),
+`EnrollmentServiceTest.java`, `EnrollmentApiConcurrencyTest.java`,
+`LearnerApiTest.java`, `README.md`, and the four documents under `docs/`.
+
+---
+
+## Entry 15 — Step 2 review decisions and final cleanup
+
+**Date:** 2026-11-16
+**Activity:** Two small code corrections decided by the developer, one test, and documentation.
+
+**Prompt (condensed):**
+
+> Step 2 review decisions and final cleanup. (1) S2-12: update
+> RegisterLearnerRequest to defensively copy its completed-course list when
+> constructed; ensure null handling remains consistent with existing request
+> validation; add a focused test proving mutation of the original input list
+> cannot change the constructed request; avoid unrelated DTO changes.
+> (2) S2-13: keep LearnerDirectory.size() if it is a harmless, useful
+> directory operation; prefer package-private visibility if it is exclusively
+> test infrastructure and that change is straightforward; do not introduce
+> reflection or complicated test infrastructure; explain the final choice.
+> (3) Update docs/AI_USAGE.md for stop-hook occurrence 9; update the
+> development log and traceability only where necessary; preserve historical
+> entries; do not mark developer verification as complete. (4) Run the
+> complete suite, repeat the concurrency tests, re-run the traceability
+> checker, confirm no unrelated changes, report diff statistics. (5) Do not
+> commit, push, merge, modify main, or begin Step 3.
+
+**AI output summary and developer decisions:**
+
+| # | AI output | Developer decision |
+|---|-----------|--------------------|
+| 1 | `RegisterLearnerRequest` now holds an unmodifiable copy of its list. Chose a plain copy over `List.copyOf` so that a null element still reaches validation and is reported as a 400, keeping null handling as it was. | AI-suggested (choice of copy); Developer review: pending |
+| 2 | TC-A-22 in a new `RegisterLearnerRequestTest`: mutating the original list does not change the request; the copy is unmodifiable; an omitted list is empty; a null element is retained for validation. | Developer review: pending |
+| 3 | `LearnerDirectory.size()` made package-private and kept. Its only caller is a test in the same package, so the change needed nothing else. | Developer review: pending |
+| 4 | No other DTO was changed. `DESIGN.md` and `README.md` were not changed because nothing in them was affected. | Developer review: pending |
+
+**Verification:**
+
+- Verified by AI — `./mvnw -B test`: `Tests run: 72, Failures: 0, Errors: 0, Skipped: 0`, BUILD SUCCESS.
+- Verified by AI — the three classes containing concurrency tests, run 10 times in a row: 10 of 10 passed.
+- Verified by AI — mapping cross-check script: no mismatch; 71 ids matched to passed methods, plus `contextLoads`.
+- Verified by AI — fault injection in a scratch copy: with the copy removed, TC-A-22 failed; with `List.copyOf` in its place, TC-A-22 failed.
+- Verified by AI — `git diff --check HEAD` clean; `pom.xml` and the `domain` packages unchanged.
+- Verified by developer: none recorded.
+- Not verified: a build on an actual JDK 17; `mvnw.cmd` on Windows.
+
+**Files informed:** `RegisterLearnerRequest.java`, `LearnerDirectory.java`,
+`RegisterLearnerRequestTest.java` (new), `docs/REQUIREMENTS_TRACEABILITY.md`,
+`docs/DEVELOPMENT_LOG.md`, `docs/AI_USAGE.md`.
+
+---
+
 ## Standing record — automated stop-hook messages
 
 The cloud environment runs an automated hook at the end of each AI turn. When
@@ -606,7 +897,12 @@ message from the developer.
 | 3 | After the Step 1 report | Declined, same reason. | Developer review: pending (no explicit statement) |
 | 4 | After the Step 1 code-quality review report | Declined, same reason. | Developer review: pending (no explicit statement) |
 | 5 | After the Step 1 corrections report | Declined, same reason. | Developer review: pending (no explicit statement) |
+| 6 | After the Step 1 acceptance review report | Declined; the developer had said not to stage, commit, push, or merge. | Developer review: pending (no explicit statement) |
+| 7 | After the Step 2 design proposal, with the Phase A documentation changes uncommitted | Declined; the developer had said not to create a commit for those changes. | Developer review: pending (no explicit statement) |
+| 8 | After the Step 2 implementation report | Declined; the developer had said not to commit, push, merge, or modify main. | Developer review: pending (no explicit statement) |
+| 9 | After the Step 2 review corrections report | Declined, same reason. | Developer review: pending (no explicit statement) |
 
-This table is current to the writing of Entry 10. An earlier version of Entry 4
+This table is current to the writing of Entry 15. No hook message followed the
+Step 1 commit or push, when the working tree was clean. An earlier version of Entry 4
 recorded "twice declined" there and labelled both as accepted; that was
 inaccurate and has been replaced by this table (review finding A1).
