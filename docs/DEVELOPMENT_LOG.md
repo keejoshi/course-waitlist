@@ -727,11 +727,254 @@ of 72 planned automated tests implemented and passed.
 **Developer review: pending** for acceptance of Step 2 and for commit
 approval. Nothing has been committed or pushed. Step 3 has not been started.
 
+### 2026-11-16 — Step 2 accepted, committed, and pushed
+
+Recorded in Step 3. As with Step 1, the commit could not carry this entry: the
+developer's instruction was to commit exactly the 33 reviewed files, so the
+Step 2 commit still shows "Developer review: pending" in the three entries
+above. Those entries are left as written.
+
+**Sequence:**
+
+1. After the final cleanup report, the developer wrote: "I approve committing Step 2", with the conditions: confirm the tree holds exactly the reviewed changes; nothing staged unexpectedly; stage the 33 files; author Keerthi Joshi; committer Claude; the Claude co-author trailer; the approved message; no push.
+2. The AI confirmed 6 modified and 27 new files and nothing staged, staged those 33 files, and committed them as `33e081edb938beeed7b4e3ca643dc75ce9bb23bd`, parent `2cc6d95`.
+3. The developer wrote: "I approve pushing the verified Step 2 commit `33e081e…` to `origin/feature/initial-setup`", with the conditions: this branch only; no merge; no `main`.
+4. The AI pushed that commit and nothing else.
+5. At the start of Step 3 the developer stated: "Step 2 is committed, pushed and verified" and "Steps 0, 1 and 2 are accepted."
+
+**Developer decision:** Accepted by developer — Step 2 acceptance, the commit,
+and the push, each by the explicit statements quoted above.
+
+**Verification — Verified by AI:**
+
+| Command | Observed result |
+|---------|-----------------|
+| `git status --porcelain` and `git diff --cached --name-only` before staging | 6 modified, 27 untracked, 0 staged. |
+| `git log -1` after the commit | Hash `33e081edb938beeed7b4e3ca643dc75ce9bb23bd`; parent `2cc6d95`; author Keerthi Joshi; committer Claude; approved message and co-author trailer; 33 files. |
+| `git push origin 33e081e…:refs/heads/feature/initial-setup` | Fast-forward `2cc6d95..33e081e`; no errors or warnings. |
+| `git ls-remote origin` before and after the push | One branch before and after, `feature/initial-setup`; after the push it is at `33e081edb938beeed7b4e3ca643dc75ce9bb23bd`. No `main`. |
+
+**Verified by developer:** none recorded. The developer's word "verified" in
+item 5 refers to the push verification the AI reported; no statement that the
+developer personally ran the tests or inspected the code has been made.
+
+### 2026-11-16 — Step 3 planning
+
+**Goal:** Identify what remains to satisfy the brief and agree a bounded final
+step. Planning only; no file was changed.
+
+**Inspection (Verified by AI):** clean working tree at `33e081e`, matching the
+remote. No rubric, limitations summary, or coverage report file in the
+repository. Only JDK 21 is installed in the container. Compiled classes are
+Java 17 format (class file version 61) and `maven.compiler.release` is 17.
+
+**What the AI reported (AI-suggested):** every behavioural acceptance
+criterion is met and no new code is needed; the remaining work is the concise
+limitations summary, a final coverage report, a reviewer reading path, an
+index for the AI usage record, final verification including a clean-clone
+build, and the developer's own independent verification, which it identified
+as the weakest area of the submission. It flagged that the rubric cannot be
+evaluated at all without the file, and that the volume of documentation is a
+proportionality risk.
+
+**Developer decisions:**
+
+| # | Question | Decision | Label |
+|---|----------|----------|-------|
+| 1 | Limitations summary location | Concise README section linking to `DESIGN.md`. | Accepted by developer (the AI's recommended option) |
+| 2 | Coverage report | Separate `docs/COVERAGE_REPORT.md`. | Accepted by developer (the AI's recommended option) |
+| 3 | Java 17 run | The developer will perform it independently on Windows after the AI's work. | Accepted by developer (the AI's recommended option) |
+| 4 | Rubric | Not available; keep REQ-26 BLOCKED and explain why. | Accepted by developer (one of the two options offered) |
+| 5 | Submission form | Continue on `feature/initial-setup`; no `main`, no pull request. | Developer's own decision |
+| 6 | Code changes | None. Step 3 is documentation and verification only. | Accepted by developer |
+
+### 2026-11-16 — Step 3: Final verification and documentation
+
+**Goal:** Complete the brief's remaining written deliverables and verify the
+submission. No production code, test code, or build file was changed.
+
+**Verification — Verified by AI:**
+
+| Check | Command or method | Observed result |
+|-------|-------------------|-----------------|
+| Clean-clone build | `git clone --branch feature/initial-setup --single-branch` from GitHub into an empty scratch directory; `./mvnw -B test` there | Clone HEAD `33e081edb938beeed7b4e3ca643dc75ce9bb23bd`; 53 tracked files; no `target` directory before the build. `Tests run: 72, Failures: 0, Errors: 0, Skipped: 0`; BUILD SUCCESS; Maven 3.10.0, Java 21.0.12. The container's existing Maven dependency cache was used. |
+| Full suite, working tree | `./mvnw -B test`, run twice | Both runs: `Tests run: 72, Failures: 0, Errors: 0, Skipped: 0`; BUILD SUCCESS. |
+| Repeated concurrency tests | `CourseOfferingConcurrencyTest`, `EnrollmentApiConcurrencyTest`, `EnrollmentServiceTest`, 10 consecutive runs | 10 of 10 passed. |
+| Traceability | Cross-check script | No mismatch in either direction; 71 test ids matched to passed methods, plus `contextLoads`; 72 of 72 test cases in the reports passed. |
+| Secrets scan | `git grep` over tracked files for credential keywords, key and token patterns, URLs with embedded credentials, and email addresses | No credential and no email address. Keyword matches only in documentation rules and in the Maven wrapper scripts. |
+| Scope scan | `./mvnw dependency:tree`; tracked file types; searches for container, CI, deployment, SQL, frontend, persistence, and security code; search for any collection of offerings | Three starters (web, validation, test). 41 Java, 1 YAML, 5 Markdown, `pom.xml`, wrapper files. None of the excluded items. No collection of offerings. |
+| Java level | `./mvnw help:evaluate -Dexpression=maven.compiler.release`; `javap -v` on a compiled class | `17`; class file major version 61. |
+| No code change | `git diff --stat 33e081e -- pom.xml src` | Empty. |
+
+**What changed (documents only):**
+
+- New `docs/COVERAGE_REPORT.md`: acceptance criteria with tests and results, verification performed, deliverables, and every open gap.
+- `README.md`: status; "How to review this submission" with a reading order and a deliverables table; "Limitations and follow-up risks".
+- `docs/AI_USAGE.md`: an index at the top; entries 16 to 18; stop-hook message 10. No earlier entry was removed or rewritten.
+- `docs/REQUIREMENTS_TRACEABILITY.md`: statuses for REQ-24, REQ-26, REQ-35 and several review checks; RV-15 added; coverage summary recomputed.
+- `docs/DESIGN.md`: one status line and one sentence pointing to the README summary.
+- This log.
+
+**Status changes:** REQ-24 is now COVERED. REQ-35 moved from OPEN to PARTIAL.
+REQ-26 stays BLOCKED and REQ-34 stays PARTIAL.
+
+**Verified by developer:** none recorded. The developer has stated they will
+run the build on Windows with Java 17 after this step; no result has been
+reported, and none is assumed here.
+
+**Not verified:** a run on an actual Java 17 runtime; `mvnw.cmd` on Windows;
+how GitHub displays the commits.
+
+**Developer review: pending** for the Step 3 documents and for commit
+approval. Nothing has been staged, committed, or pushed.
+
+### 2026-11-17 — Step 3 confirmation verification and documentation cleanup
+
+**Context:** The AI's turn that wrote the Step 3 documents on 2026-11-16 was
+cut off before it reported. On 2026-11-17 the developer asked it to try again;
+it found the document edits already on disk, ran confirming checks, and
+reported. The developer then wrote "Step 3 final review: conditionally
+accepted" and asked for the cleanup recorded here. The 2026-11-16 entry above
+is left as written.
+
+**Checks performed on 2026-11-17 — Verified by AI.** Two occasions: after the
+interrupted turn, and during this cleanup.
+
+| Check | Command or method | Observed result |
+|-------|-------------------|-----------------|
+| Full suite, working tree | `./mvnw -B test`, once on each occasion | Both: `Tests run: 72, Failures: 0, Errors: 0, Skipped: 0`; BUILD SUCCESS. |
+| Traceability | Cross-check script, once on each occasion and again after the cleanup edits | Each time: no mismatch; 71 test ids matched to passed methods, plus `contextLoads`; 72 of 72 test cases passed. |
+| No code change | `git diff --stat 33e081e -- pom.xml src mvnw mvnw.cmd .mvn .gitignore .gitattributes`, once on each occasion | Empty both times. |
+| Document hygiene (first occasion) | `git diff --check HEAD`; search for claims of developer verification and for stale phrases; check of relative links in `README.md` and `COVERAGE_REPORT.md` | No whitespace errors; none found; all links resolve. |
+| Repository state (first occasion) | `git diff --cached --name-only`, `git ls-remote origin` | Nothing staged; remote branch at `33e081e`. |
+| Coverage report against traceability matrix (this cleanup) | Script comparing requirement counts and statuses, test totals, the test lists for AC-1 to AC-5, review-check statuses, and listed gaps, run before and after the cleanup edits | No difference either time. |
+| AI usage index (this cleanup) | Listing of the decision recorded against every numbered item in entries 1 to 18, counted | 51 accepted, 5 modified, 2 rejected, 43 with no explicit decision when recorded. Matches the index. |
+
+**Not repeated on 2026-11-17:** the clean-clone build, the ten consecutive
+runs of the concurrency test classes, the secrets scan, and the scope scan.
+These were performed on 2026-11-16 only.
+
+**What changed in this cleanup (documents only):**
+
+- `docs/COVERAGE_REPORT.md`: the verification section now has separate tables for 2026-11-16 and 2026-11-17.
+- `docs/REQUIREMENTS_TRACEABILITY.md`: a confirmation-run line in the header, a sentence in the coverage summary, and the entry and stop-hook counts in RV-01.
+- `docs/AI_USAGE.md`: Entry 19; stop-hook message 11; the index extended to Entry 19, with its wording about modified items made exact and three counting notes added.
+- This log.
+
+**Confirmed unchanged statuses:** REQ-26 BLOCKED (rubric not available);
+REQ-34 PARTIAL (no independent developer verification reported); REQ-35
+PARTIAL (final submission pending). No document claims a run on Windows or on
+a Java 17 runtime, and the clean-clone build is described as having used the
+existing Maven dependency cache.
+
+**Developer decision:** the developer's statement on Step 3 is "conditionally
+accepted", subject to this cleanup. It is recorded as that and not as full
+acceptance.
+
+**Verified by developer:** none recorded.
+
+**Developer review: pending** for the cleaned-up Step 3 documents and for
+commit approval. Nothing has been staged, committed, or pushed.
+
+### 2026-11-17 — Step 3 acceptance statement received; final housekeeping
+
+**Corrected on 2026-11-17 (see the next entry).** As first written, this entry
+recorded "Step 3 is accepted" as "Accepted by developer". The developer has
+since stated that the acceptance was ChatGPT's, based on Claude's reported
+results, and was not a separate acceptance statement from the developer.
+
+**Statement received:** "Step 3 is accepted." It followed the earlier
+"conditionally accepted" and the cleanup recorded in the entry above.
+
+**Developer decision:** none recorded for Step 3 acceptance. Developer review:
+pending.
+
+**What the statement is, and is not.** It is ChatGPT's acceptance of the Step
+3 documents and results as Claude reported them. It is not independent
+verification by the developer, and it is not the developer's own acceptance
+statement. No report that the developer ran the tests, built the project on
+Windows or on a Java 17 runtime, or inspected the code has been made, so:
+
+- **Verified by developer:** none recorded.
+- REQ-34 (independent review of AI output) remains PARTIAL.
+- REQ-26 remains BLOCKED (rubric not available) and REQ-35 remains PARTIAL (the Step 3 documents are not yet committed or pushed).
+
+The "Developer review: pending" lines in the two Step 3 entries above are
+left as written, and remain accurate.
+
+**What changed in this housekeeping (documents only):**
+
+- `docs/AI_USAGE.md`: Entry 20; stop-hook message 12 (it requested a commit and push after the corrected Step 3 report and was declined pending explicit approval); the index extended to Entry 20, with its Step 3 note updated. No earlier entry or classification was changed.
+- `docs/REQUIREMENTS_TRACEABILITY.md`: the entry range and stop-hook count in review check RV-01.
+- This log.
+
+**Verification — Verified by AI:**
+
+| Command | Observed result |
+|---------|-----------------|
+| Traceability cross-check script, after the edits | No mismatch in either direction; 72 of 72 test cases in the reports passed. |
+| Coverage report against traceability matrix, by script, after the edits | No difference. |
+| `git diff --stat 33e081e -- pom.xml src mvnw mvnw.cmd .mvn .gitignore .gitattributes` | Empty: no source, test, `pom.xml`, or Maven wrapper change. |
+
+The test suite was not re-run for this housekeeping; the last runs are those
+of 2026-11-17 recorded in the entry above, and nothing they cover has changed.
+
+**State:** nothing staged, committed, or pushed. The AI is waiting for the
+developer's explicit commit authorization.
+
+### 2026-11-17 — Correction of the Step 3 acceptance record; Step 3 commit authorized
+
+**Instruction received (in the developer's turn of the session):** "I
+explicitly authorize the following actions": record stop-hook message 13;
+correct the Step 3 acceptance wording; verify, then stage only the six Step 3
+files; commit locally with the approved message; do not push.
+
+**Correction.** The instruction states that the Step 3 acceptance was
+ChatGPT's acceptance based on Claude's reported results, that it was not
+independent verification by the developer, and that it was not a separate
+acceptance statement from the developer. The previous entry and
+`AI_USAGE.md` Entry 20 had recorded it as "Accepted by developer". Both were
+corrected in place, each with a dated note saying what it first said. No
+other historical entry was changed.
+
+**What this does and does not establish.** It establishes that one message in
+this session's record, attributed to the developer, was another AI
+assistant's. The AI does not know whether other messages were drafted with or
+by ChatGPT, and has not relabelled any of them. Every earlier "Accepted by
+developer" label rests on a message received in the developer's turn and
+stands as recorded unless the developer says otherwise.
+
+**What changed (documents only):**
+
+- `docs/AI_USAGE.md`: stop-hook message 13; Entry 20 corrected; Entry 21 added; the index rebuilt (Entry 20 no longer contributes an accepted item) with an attribution note.
+- `docs/REQUIREMENTS_TRACEABILITY.md`: RV-01 (entry range and stop-hook count) and RV-11 (the Step 3 acceptance is not developer verification).
+- `docs/COVERAGE_REPORT.md`: one sentence in the REQ-34 row.
+- This log.
+
+**Statuses, unchanged:** REQ-34 PARTIAL; REQ-26 BLOCKED; REQ-35 PARTIAL.
+
+**Verification — Verified by AI:**
+
+| Command | Observed result |
+|---------|-----------------|
+| Traceability cross-check script, after the edits | No mismatch in either direction; 72 of 72 test cases in the reports passed. |
+| Coverage report against traceability matrix, by script, after the edits | No difference. |
+| `git diff --stat 33e081e -- pom.xml src mvnw mvnw.cmd .mvn .gitignore .gitattributes` | Empty. |
+| `git status` before staging | Exactly the six Step 3 files changed; nothing staged. |
+
+The test suite was not re-run; nothing it covers has changed since the runs of
+2026-11-17 recorded above.
+
+**Verified by developer:** none recorded.
+
+**Commit:** authorized by the instruction quoted above, locally only. The
+commit's hash cannot appear inside the commit; it is in the AI's report. Push
+has not been authorized.
+
 ## Open items
 
-- Developer acceptance of Step 2.
-- REQ-26 is blocked until `Course-Registration-Rubric-Score.md` is provided.
-- Developer's independent verification is not yet recorded (RV-11).
-- Final limitations summary and final coverage report (REQ-24, REQ-35).
-- Build once on a real JDK 17.
-- Run the `mvnw.cmd` commands once on Windows.
+- Push of the Step 3 commit, on explicit authorization.
+- Developer's independent verification: Windows with Java 17, `mvnw.cmd test`, and review of the code (RV-11, REQ-34). Results to be recorded as the developer reports them.
+- The developer's own acceptance of Step 3 is not recorded; the acceptance received was ChatGPT's.
+- REQ-26 remains blocked: the rubric file is not available.
+- Repeat the clean-clone check after the Step 3 commit is pushed.

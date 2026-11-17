@@ -3,10 +3,15 @@
 Master checklist of every requirement and test for this assessment, and the
 matrix linking requirement, implementation, test, and result.
 
-**Last updated:** Step 2 (service layer and REST API) after the Step 2 review decisions and final cleanup, 2026-11-16.
+**Last updated:** Step 3 (final verification and documentation), 2026-11-16.
 **Last test run recorded here:** `./mvnw -B test` on 2026-11-16, OpenJDK 21.0.12 —
-72 run, 0 failed, 0 errors, 0 skipped. Verified by AI. **Verified by developer:
-none recorded.**
+72 run, 0 failed, 0 errors, 0 skipped, in the working tree and in a clean clone
+of the pushed branch. Verified by AI. **Verified by developer: none recorded.**
+**Confirmation run:** `./mvnw -B test` on 2026-11-17 in the working tree only —
+72 run, 0 failed, 0 errors, 0 skipped. Verified by AI. The clean-clone build was
+not repeated on that date.
+
+The summary of this matrix for a reader is [COVERAGE_REPORT.md](COVERAGE_REPORT.md).
 
 ## Rules
 
@@ -31,7 +36,7 @@ none recorded.**
 | For | Values |
 |-----|--------|
 | Tests | NOT IMPLEMENTED, NOT EXECUTED, PASSED, FAILED; NOT AN AUTOMATED TEST for a row converted to a review check |
-| Review checks | OPEN, EVIDENCED TO DATE (true at this commit, re-checked at each commit), PARTIAL, BLOCKED |
+| Review checks | OPEN, EVIDENCED TO DATE (true at this commit, re-checked at each commit), PARTIAL, COVERED, BLOCKED |
 | Requirements | NOT COVERED, PARTIAL, COVERED, BLOCKED |
 
 The brief's suggested timebox of 7-8 hours is treated as guidance, not as a
@@ -113,14 +118,14 @@ passing tests, at the API level as well as the domain level where both apply.
 | REQ-19 | BRIEF scope | No configurable policy engine. | RV-10 | EVIDENCED TO DATE |
 | REQ-21 | BRIEF deliverables | Design specification covering service boundary, data/API design, enrollment and capacity invariants, waitlist-promotion rule, concurrency or persistence approach, and assumptions or tradeoffs. | RV-02 | COVERED |
 | REQ-22 | BRIEF deliverables | AI record includes the files or decisions informed and verification evidence. | RV-01 | EVIDENCED TO DATE |
-| REQ-23 | BRIEF deliverables | Setup and run instructions, including the commands used to execute the tests. | RV-03 | COVERED |
-| REQ-24 | BRIEF deliverables | Concise summary of limitations or follow-up risks. | RV-04 | PARTIAL: limitations listed in DESIGN.md section 8; final summary pending |
+| REQ-23 | BRIEF deliverables | Setup and run instructions, including the commands used to execute the tests. | RV-03, RV-15 | COVERED |
+| REQ-24 | BRIEF deliverables | Concise summary of limitations or follow-up risks. | RV-04 | COVERED |
 | REQ-25 | BRIEF candidate expectations | No credentials, secrets, or unnecessary sensitive data in prompts or prompt records. | RV-06 | EVIDENCED TO DATE |
-| REQ-26 | BRIEF timebox paragraph | Use the AI-Assisted scorecard in `Course-Registration-Rubric-Score.md`. | RV-08 | **BLOCKED**: the rubric file has not been provided |
+| REQ-26 | BRIEF timebox paragraph | Use the AI-Assisted scorecard in `Course-Registration-Rubric-Score.md`. | RV-08 | **BLOCKED**: the rubric file was not supplied with the brief and the developer has confirmed it is not available |
 | REQ-32 | BRIEF candidate expectations | Start by understanding the supplied project and its existing interfaces, persistence, and test conventions; if no starter is supplied, use the minimal service or CLI fallback. | RV-09 | COVERED |
 | REQ-33 | BRIEF scope | Do not implement separate greenfield, brownfield, and ambiguous scenarios. | RV-10 | EVIDENCED TO DATE |
 | REQ-34 | BRIEF candidate expectations | Independently review and verify AI-generated suggestions; be candid about what AI contributed and what was changed or rejected. | RV-11 | PARTIAL: no independent developer verification is recorded yet |
-| REQ-35 | BRIEF candidate expectations | Submit the implementation and all listed deliverables together. | RV-12 | OPEN: final submission |
+| REQ-35 | BRIEF candidate expectations | Submit the implementation and all listed deliverables together. | RV-12, RV-15 | PARTIAL: every deliverable is in the repository and linked from the README; the Step 3 documents await commit and push on the developer's approval |
 
 ## C. Automated tests (AI-DERIVED)
 
@@ -241,24 +246,27 @@ only where the developer has explicitly confirmed a check.
 
 | ID | Check | Requirements | Status | Evidence at this commit |
 |----|-------|--------------|--------|-------------------------|
-| RV-01 | `docs/AI_USAGE.md` has prompts, output summaries, developer decisions, files informed, and verification for every AI activity. | REQ-15, 22 | EVIDENCED TO DATE | `docs/AI_USAGE.md` entries 1-15 cover every session activity to this point, including the Step 2 design proposal, implementation, review corrections, and final cleanup. The stop-hook table lists all nine automated messages. |
+| RV-01 | `docs/AI_USAGE.md` has prompts, output summaries, developer decisions, files informed, and verification for every AI activity. | REQ-15, 22 | EVIDENCED TO DATE | `docs/AI_USAGE.md` entries 1-21 cover every session activity to this point, with an index at the top. The stop-hook table lists all thirteen automated messages received so far. |
 | RV-02 | `docs/DESIGN.md` covers every topic the brief lists and states the assumptions. | REQ-16, 21 | COVERED | `docs/DESIGN.md` sections 1-8: service boundary (1, 7.1), data and API design (3, 7), invariants (4), promotion rule (5), concurrency and persistence (6), assumptions and tradeoffs (2, 7.5, 8). The ineligible-at-front policy is W3 and W4 in section 2. |
-| RV-03 | README setup and test commands are present and were actually run. | REQ-23 | COVERED | `README.md` "Setup and run" and "Using the API". `./mvnw -B test` run (72 passed) and `./mvnw -B spring-boot:run` run with the README's `curl` calls issued against it (Verified by AI). `mvnw.cmd` not run on Windows. |
-| RV-04 | Limitations and follow-up risks are written up. | REQ-24 | PARTIAL | `docs/DESIGN.md` section 8 (L1-L11; L11 is recorded as resolved). The final summary deliverable is pending. |
-| RV-05 | Dependencies and source tree hold one offering, in-memory state, and none of the excluded items. | REQ-17, 18 | EVIDENCED TO DATE | `git diff --stat HEAD -- pom.xml` is empty: dependencies unchanged since Step 0 (web, validation, test starters only). State is held in `CourseOffering` and `LearnerDirectory` objects; there is no database, file, or cache. |
-| RV-06 | No credentials or secrets in the repository or prompt records. | REQ-25 | EVIDENCED TO DATE | Keyword search (`password`, `secret`, `api key`, `token`, `bearer`, `private key`) over `src`, `docs`, and `README.md`: the only matches are the words used in documentation rules and in this table. No values found. The Maven wrapper scripts, unchanged since Step 0, mention their own optional `MVNW_PASSWORD` variable. |
+| RV-03 | README setup and test commands are present and were actually run. | REQ-23 | COVERED | `README.md` "Setup and run" and "Using the API". `./mvnw -B test` run (72 passed), also from a clean clone; `./mvnw -B spring-boot:run` run with the README's `curl` calls issued against it in Step 2 (Verified by AI). `mvnw.cmd` not run on Windows; the developer has stated they will do this after Step 3. |
+| RV-04 | Limitations and follow-up risks are written up. | REQ-24 | COVERED | Concise summary in `README.md`, "Limitations and follow-up risks"; full list in `docs/DESIGN.md` section 8 (L1-L11; L11 recorded as resolved). |
+| RV-05 | Dependencies and source tree hold one offering, in-memory state, and none of the excluded items. | REQ-17, 18 | EVIDENCED TO DATE | `git diff --stat 33e081e -- pom.xml src` is empty and `./mvnw dependency:tree` shows only the web, validation, and test starters, unchanged since Step 0. State is held in `CourseOffering` and `LearnerDirectory` objects; a search of `src` and `pom.xml` for JDBC, JPA, data-source, cache, and security code found none. |
+| RV-06 | No credentials or secrets in the repository or prompt records. | REQ-25 | EVIDENCED TO DATE | Step 3 scan of all tracked files for credential keywords, key and token patterns, URLs with embedded credentials, and email addresses: no credential and no email address. The only keyword matches are the words used in documentation rules and in this table, and the Maven wrapper scripts' own optional `MVNW_PASSWORD` handling. |
 | RV-07 | Every scenario named in AC-6 maps to at least one executed, passing test. | REQ-13 | COVERED | Table A.1; surefire reports from the run recorded at the top of this file. |
-| RV-08 | Rubric self-rating completed. | REQ-26 | BLOCKED | `Course-Registration-Rubric-Score.md` has not been provided. No rating has been written or guessed. |
+| RV-08 | Rubric self-rating completed. | REQ-26 | BLOCKED | `Course-Registration-Rubric-Score.md` was not supplied with the brief, and the developer confirmed in Step 3 that it is not available. No rating has been written and the rubric's criteria have not been guessed. |
 | RV-09 | The existing project was inspected before implementation; the minimal-service fallback is justified. | REQ-32 | COVERED | Repository inspected by command before Step 0 (empty) and before Step 1 (Step 0 skeleton only); see the development log. Fallback justification: `docs/DESIGN.md` section 1. |
-| RV-10 | No separate greenfield, brownfield, or ambiguous scenarios; no frontend, policy engine, or excluded infrastructure. | REQ-18, 19, 33 | EVIDENCED TO DATE | One scenario is implemented: the single-offering slice. The source tree contains only Java and `application.yaml`: no frontend, Docker, CI, or deployment files. Policies are fixed in `CourseOffering` and `Learner`; the only configuration is the offering's own data (id, course, prerequisites, capacity), not its rules. The learner endpoints are an in-memory store needed for promotion-time eligibility, not an identity integration or a course catalog: completions are bare course codes and no course list exists. |
-| RV-11 | Independent AI review: what AI contributed, what the developer accepted, modified, or rejected, and how changes were independently verified. | REQ-34 | PARTIAL | AI contributions and developer decisions are recorded per entry in `docs/AI_USAGE.md`. Verification so far is "Verified by AI": commands run in session, the AI's reviews of its own work (entries 8 and 13), and fault-injection checks (entries 7, 9, 13). These are the AI checking its own output and do not count as independent review. **Verified by developer: none recorded. This stays PARTIAL until the developer personally reviews and confirms.** |
-| RV-12 | Implementation and all deliverables are submitted together. | REQ-35 | OPEN | Final submission. |
+| RV-10 | No separate greenfield, brownfield, or ambiguous scenarios; no frontend, policy engine, or excluded infrastructure. | REQ-18, 19, 33 | EVIDENCED TO DATE | One scenario is implemented: the single-offering slice. Tracked files are 41 Java files, one `application.yaml`, five Markdown documents, `pom.xml`, and the Maven wrapper: no frontend, container, CI, deployment, or SQL files (Step 3 scan). Policies are fixed in `CourseOffering` and `Learner`; the only configuration is the offering's own data, not its rules. The learner endpoints are an in-memory store needed for promotion-time eligibility, not an identity integration or a course catalog. Step 3 added no code. |
+| RV-11 | Independent AI review: what AI contributed, what the developer accepted, modified, or rejected, and how changes were independently verified. | REQ-34 | PARTIAL | AI contributions and developer decisions are recorded per entry in `docs/AI_USAGE.md`: the developer set every policy, and modified or rejected seven AI recommendations. Verification so far is "Verified by AI": commands run in session, the AI's reviews of its own work, and fault-injection checks. These do not count as independent review. The developer has stated they will run the build on Windows with Java 17 after Step 3; no result has been reported. The acceptance statement received for Step 3 was, by the developer's statement, ChatGPT's acceptance based on Claude's reported results; it is neither developer verification nor the developer's own acceptance. **Verified by developer: none recorded. This stays PARTIAL until the developer personally reviews and confirms.** |
+| RV-12 | Implementation and all deliverables are submitted together. | REQ-35 | PARTIAL | Every deliverable the brief lists is present and linked from `README.md`, "How to review this submission", except the rubric self-rating (blocked). Submission is by the branch `feature/initial-setup`, by developer decision; no `main` branch or pull request. The Step 3 documents are not yet committed or pushed. |
 | RV-13 | Single offering: the API has one configured offering, no offering id, and no offering registry. (Replaces TC-A-10 by developer decision.) | REQ-17 | COVERED | No path in `OfferingController` or `LearnerController` carries an offering id. One `CourseOffering` bean is created in `OfferingConfiguration`; TC-S-06 asserts the context has a single such bean. TC-A-12 asserts `GET /api/offering` returns the configured offering. TC-A-18 asserts that paths carrying an offering id (`/api/offerings/CS201-A/...`) are not found. No class holds a collection of offerings. |
 | RV-14 | The API never serializes a domain object. | REQ-39 | COVERED | Every controller method returns a record from the `api` package or nothing. The `api` package imports only `EnrollmentResult` and `DropResult` from the domain, both immutable records, and only to copy their values into responses; it does not reference `Learner`, `Course`, `CourseOffering`, or `OfferingSnapshot` (checked by search). TC-A-12 and TC-A-16 assert the exact set of JSON fields. |
+| RV-15 | The submission builds and passes from a clean clone of the pushed branch. | REQ-23, 35 | COVERED | Step 3: `git clone --branch feature/initial-setup` from GitHub into an empty directory gave commit `33e081e`, 53 files, no build output; `./mvnw -B test` there: 72 run, 0 failures. The existing Maven dependency cache was used. To be repeated after the Step 3 commit is pushed; Step 3 changes documents only. |
 
 ## E. Coverage summary
 
-Recomputed after the Step 2 final cleanup, for the proposed Step 2 commit.
+Recomputed in Step 3, for the proposed Step 3 commit. Step 3 changed no code
+and no test, so the test figures are those of Step 2, re-run on 2026-11-16 and
+confirmed on 2026-11-17. No status or count changed between the two dates.
 
 | Measure | Count |
 |---------|-------|
@@ -266,9 +274,8 @@ Recomputed after the Step 2 final cleanup, for the proposed Step 2 commit.
 | Requirements by origin | 30 BRIEF, 10 DEV |
 | Behavioural requirements covered by executed passing tests | 25 of 25 |
 | Behavioural requirements partial or not covered | 0 |
-| Documentation/scope requirements covered or evidenced to date | 11 of 15 |
-| Documentation/scope requirements partial | 2 (REQ-24, 34) |
-| Documentation/scope requirements open | 1 (REQ-35) |
+| Documentation/scope requirements covered or evidenced to date | 12 of 15 |
+| Documentation/scope requirements partial | 2 (REQ-34, 35) |
 | Documentation/scope requirements blocked | 1 (REQ-26) |
 | Requirements implemented in code (behavioural) | 25 of 25 |
 | Automated tests planned | 72 (38 domain, 6 concurrency, 21 API, 7 service) |
@@ -277,9 +284,9 @@ Recomputed after the Step 2 final cleanup, for the proposed Step 2 commit.
 | Tests failed | 0 |
 | Tests not yet implemented | 0 |
 | Tests implemented but not executed | 0 |
-| Review checks | 14: 6 covered, 4 evidenced to date, 2 partial, 1 open, 1 blocked |
+| Review checks | 15: 8 covered, 4 evidenced to date, 2 partial, 1 blocked |
 
-TC-A-10 is no longer counted as an automated test: by developer decision it is
+TC-A-10 is not counted as an automated test: by developer decision it is
 review check RV-13.
 
 Every mapping in sections B.1 and C was checked in both directions by script:
@@ -288,20 +295,18 @@ Each of the 71 test ids other than TC-A-13 was matched to a test method that
 appears as passed in the surefire report of the run recorded at the top;
 TC-A-13 is `contextLoads`, which also passed.
 
-### Changes in Step 2
+### Changes in Step 3
 
 | Change | Reason |
 |--------|--------|
-| REQ-38, REQ-39, REQ-40 added (DEV) | Approved by the developer with the Step 2 design: `ProblemDetail` errors, no exposed domain state, learner endpoints. |
-| TC-A-14 to TC-A-19 and TC-S-01 to TC-S-06 added | Approved with the Step 2 design. |
-| TC-A-01 to TC-A-12 rewritten against the final API | Status codes follow the developer's decisions: 200 for both `ENROLLED` and `WAITLISTED`; 409 `NOT_ENROLLED`; 404 `LEARNER_NOT_FOUND`; 422 for prerequisite failure. |
-| TC-A-08 resolved as applicable | The service holds learner state, so an unknown learner id is a real invalid request. |
-| TC-A-10 converted to RV-13 | Developer decision: keep it as a design/review check; no offering registry or artificial endpoint. |
-| RV-14 added | Review evidence for REQ-39 alongside its tests. |
-| TC-S-07, TC-A-20 added | Developer's Step 2 review, correction 1 (finding S2-8): concurrent registration of the same learner id. |
-| TC-A-21 added | Developer's Step 2 review, correction 2 (finding S2-7, limitation L11): JSON numbers are no longer read as text. |
-| TC-A-22 added; REQ-39 wording now covers request types | Developer's decision on S2-12: `RegisterLearnerRequest` defensively copies its list. |
-| REQ-20, REQ-29 now COVERED; "COVERED (domain)" rows now COVERED | The API tests exist and passed. |
+| REQ-24 and RV-04 now COVERED | The concise limitations summary the brief asks for was added to the README. |
+| RV-15 added | Clean-clone build check of the pushed branch. |
+| REQ-35 and RV-12 now PARTIAL (were OPEN) | All deliverables are present and linked; commit and push of the Step 3 documents is pending. |
+| REQ-26 and RV-08 wording | The developer confirmed the rubric file is not available. Still BLOCKED. |
+| No test or requirement added or removed | Step 3 is documentation and verification only. |
+
+Earlier changes are recorded in `DEVELOPMENT_LOG.md` (Steps 1 and 2 and their
+review corrections) and in the git history of this file.
 
 ### Acceptance criteria
 
@@ -309,12 +314,11 @@ TC-A-13 is `contextLoads`, which also passed.
 |----|--------|
 | AC-1 to AC-5 | Each has executed, passing tests at both the domain and the API level. |
 | AC-6 | All six named scenarios have executed, passing tests. Concurrency tests added although the clause is not triggered. |
-| AC-7 | Evidenced to date by review (RV-01); developer verification not yet recorded (RV-11). |
+| AC-7 | Evidenced by review (RV-01); developer verification not yet recorded (RV-11). |
 
 ### Outstanding gaps
 
-- **BLOCKED:** REQ-26 — rubric file `Course-Registration-Rubric-Score.md` not provided. No self-rating has been written.
-- **PARTIAL:** REQ-24 — limitations are listed in `DESIGN.md` section 8; the final summary deliverable is pending.
+- **BLOCKED:** REQ-26 — the rubric file `Course-Registration-Rubric-Score.md` is not available. No self-rating has been written.
 - **PARTIAL:** REQ-34 — developer verification not recorded.
-- **OPEN:** REQ-35 — final submission.
-- **Not verified:** a build on an actual JDK 17; `mvnw.cmd` on Windows.
+- **PARTIAL:** REQ-35 — Step 3 documents await commit and push.
+- **Not verified:** a build on an actual JDK 17; `mvnw.cmd` on Windows. The developer has stated they will check both after Step 3.

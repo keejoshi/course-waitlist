@@ -13,7 +13,7 @@ builds them.
 | Waitlist promotion rule and open-seat policy | Written and tested (Step 1) |
 | Concurrency and persistence | Written and tested (Step 1) |
 | Service layer and REST API | Written, implemented, and tested (Step 2) |
-| Limitations and follow-up risks | Updated (Step 2); final summary pending |
+| Limitations and follow-up risks | Written (Steps 1 and 2); concise summary in the README (Step 3) |
 
 ## 1. Context and service boundary
 
@@ -332,7 +332,8 @@ carries a stack trace or class name.
 
 ## 8. Limitations and follow-up risks
 
-Found so far; a final summary will be produced at the end of the project.
+The full list. A concise summary is in the README, "Limitations and follow-up
+risks".
 
 | # | Limitation | Consequence |
 |---|------------|-------------|

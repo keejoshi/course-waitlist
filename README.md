@@ -9,16 +9,42 @@ full registration platform.
 
 ## Status
 
-**Step 2 — service layer and REST API.** The enrollment, drop, and waitlist
-rules are implemented as plain Java domain classes and exposed through a small
-REST API. All state is in memory.
+**Complete, pending the developer's own verification.** The enrollment, drop,
+and waitlist rules are implemented as plain Java domain classes and exposed
+through a small REST API. All state is in memory. 72 automated tests pass.
 
 | Step | Scope | State |
 |------|-------|-------|
 | 0 | Maven/Spring Boot skeleton, documentation scaffolding, startup test | Done |
 | 1 | Domain model (`Course`, `Learner`, `CourseOffering`), domain and concurrency tests, design specification, traceability matrix | Done |
-| 2 | Service layer, REST API, service and API tests | Implemented; awaiting review |
-| 3 | Final limitations summary, coverage report, rubric self-rating | Not started |
+| 2 | Service layer, REST API, service and API tests | Done |
+| 3 | Final verification, coverage report, limitations summary, reviewer guide | Done by the AI; the developer's independent verification is not yet recorded |
+
+Not available: the rubric self-rating. The scorecard file the brief refers to
+was not supplied. See the coverage report.
+
+## How to review this submission
+
+Suggested reading order, shortest path first:
+
+1. This README: what the service does, how to run it, and its limitations.
+2. [docs/COVERAGE_REPORT.md](docs/COVERAGE_REPORT.md): each acceptance criterion, the tests that cover it, the actual results, and every open gap.
+3. [docs/DESIGN.md](docs/DESIGN.md), sections 2 and 5: the prerequisite and waitlist policies, including what happens to an ineligible learner at the front of the queue.
+4. `src/main/java/com/assessment/coursewaitlist/domain/CourseOffering.java`: all enrollment rules and the lock, in one class.
+5. `src/test/java/com/assessment/coursewaitlist/domain/CourseOfferingTest.java` and `api/OfferingApiTest.java`: the behaviour tests, each named after its checklist id.
+6. [docs/AI_USAGE.md](docs/AI_USAGE.md): start with the index at the top.
+
+Deliverables asked for by the assessment brief:
+
+| Deliverable | Location |
+|-------------|----------|
+| Runnable code and automated tests | `src/` |
+| Design specification | [docs/DESIGN.md](docs/DESIGN.md) |
+| AI prompt and use record | [docs/AI_USAGE.md](docs/AI_USAGE.md) |
+| Setup and run instructions, with test commands | This README, "Setup and run" |
+| Summary of limitations and follow-up risks | This README, "Limitations and follow-up risks" |
+| Requirement-to-test traceability and coverage | [docs/REQUIREMENTS_TRACEABILITY.md](docs/REQUIREMENTS_TRACEABILITY.md), [docs/COVERAGE_REPORT.md](docs/COVERAGE_REPORT.md) |
+| Rubric self-rating | Not available: the rubric file was not supplied |
 
 ## Scope
 
@@ -158,6 +184,25 @@ Responses:
 The full endpoint, body, and error reference is in
 [docs/DESIGN.md](docs/DESIGN.md), section 7.
 
+## Limitations and follow-up risks
+
+A concise summary. The full list, with consequences, is in
+[docs/DESIGN.md](docs/DESIGN.md), section 8.
+
+- **State is in memory.** Enrollments, the waitlist, and learners are lost on restart, and the service cannot run as more than one instance.
+- **A waiting learner who becomes eligible again is not seated immediately.** Marking a completion does not itself fill a vacant seat; the learner is promoted at the next drop or the next valid new enrollment request.
+- **Revoking a prerequisite does not remove an enrolled learner.** This is the stated policy, not a defect.
+- **No authentication or authorization.** Any caller can register learners, change completions, and enroll or drop anyone. Identity integration is outside the brief's scope.
+- **Learners cannot be removed**, and the learner directory has no size limit.
+- **Promotion scans the waitlist from the front**, so its cost grows with the number of ineligible learners ahead of the first eligible one.
+- **Concurrency tests are probabilistic.** They always pass on correct code, and they failed when locks were deliberately removed, but passing cannot prove the absence of every race. The tests over real HTTP are weaker detectors than the in-process ones.
+- **Not yet verified on Java 17 or on Windows.** The code is compiled for Java 17 but has only been run on JDK 21 on Linux.
+
+Follow-up work a production version would need: persistence with database
+transactions in place of the in-memory lock, authentication, removal of
+learners, and a trigger that offers vacant seats when a waiting learner's
+completions change.
+
 ## Project structure
 
 ```
@@ -165,6 +210,7 @@ The full endpoint, body, and error reference is in
 ├── pom.xml
 ├── mvnw, mvnw.cmd, .mvn/        Maven wrapper
 ├── docs/
+│   ├── COVERAGE_REPORT.md             Final acceptance and test coverage report
 │   ├── DESIGN.md                      Design specification, policies, limitations
 │   ├── REQUIREMENTS_TRACEABILITY.md   Requirement and test checklist, coverage summary
 │   ├── DEVELOPMENT_LOG.md             Step-by-step record of what was done and verified
@@ -187,6 +233,7 @@ The full endpoint, body, and error reference is in
 
 ## Documentation
 
+- [docs/COVERAGE_REPORT.md](docs/COVERAGE_REPORT.md) — final acceptance and test coverage report, with every open gap
 - [docs/DESIGN.md](docs/DESIGN.md) — design specification: boundary, assumptions and policies, domain model, invariants, promotion rule, concurrency, service layer and REST API, limitations
 - [docs/REQUIREMENTS_TRACEABILITY.md](docs/REQUIREMENTS_TRACEABILITY.md) — every requirement and test with its status, and the coverage summary
 - [docs/DEVELOPMENT_LOG.md](docs/DEVELOPMENT_LOG.md) — chronological development record and documentation rules
