@@ -3,7 +3,10 @@
 Record of every AI-assisted engineering activity in this project, as required
 by the assessment brief (acceptance criterion 7).
 
-**Tool:** Claude Code (cloud session), working directly in this repository.
+**Tools:** Claude Code (cloud session), working directly in this repository,
+and ChatGPT, used by the developer outside the repository. The numbered
+entries record the Claude Code session. ChatGPT's part is in the section
+"ChatGPT's role", as the developer stated it.
 
 Each entry gives the prompt, a summary of the AI output, the developer's
 decision, and the verification performed. Prompts are condensed with nothing
@@ -40,31 +43,86 @@ verification performed.
 | 19 | 2026-11-17 | Step 3 confirmation and documentation cleanup | — | — | — | 5 |
 | 20 | 2026-11-17 | Step 3 acceptance statement and final housekeeping | — | — | — | 3 |
 | 21 | 2026-11-17 | Correction of the Step 3 acceptance record; Step 3 commit | — | — | — | 5 |
-| **Entries 1-21** | | | **51** | **5** | **2** | **56** |
+| 22 | 2026-11-17 | Step 3 push | 2 | — | — | — |
+| 23 | 2026-11-17 | Submission-readiness review | 1 | — | — | 1 |
+| 24 | 2026-11-17 | Final submission update | — | — | — | 6 |
+| 25 | 2026-11-17 | Review of the final update; corrections | 1 | — | 2 | 4 |
+| **Entries 1-25** | | | **55** | **5** | **4** | **67** |
 
 How to read the counts:
 
 - They count the decision recorded against each numbered item in an entry. Entries 1, 8, and 10 record a single decision in prose and are counted as one each. The three numbered rows in Entry 10 list corrections, not decisions, and are not counted.
-- **Pending when recorded** means no explicit developer decision existed when the entry was written. The pending items of entries 6 to 10 were later covered by the developer's acceptance of Step 1 (Entry 11), and those of entries 13 to 15 by the acceptance of Step 2 (Entry 16). Both acceptances were given on the basis of the AI's reports, and the earlier entries were not relabelled. For Step 3, no acceptance by the developer is recorded. A message saying "conditionally accepted" (Entry 19) was followed by "Step 3 is accepted" (Entry 20); the developer has stated that this acceptance was ChatGPT's, based on Claude's reported results, and was neither the developer's own acceptance statement nor developer verification (Entry 21). The items of entries 18 to 21 therefore remain pending.
-- **Modified** and **Rejected** are where the developer changed or overruled what the AI proposed: the README and the documentation rules and backfill (Entry 2, two items); the master checklist (Entry 6); the handling of TC-A-10 and the enrollment status codes (Entry 12, two items); the AI's recommendation on leaving the waitlist (Entry 5, rejected); and its recommended status for a drop by a learner who holds nothing (Entry 12, rejected).
+- **Pending when recorded** means no explicit developer decision existed when the entry was written. The pending items of entries 6 to 10 were later covered by the developer's acceptance of Step 1 (Entry 11), and those of entries 13 to 15 by the acceptance of Step 2 (Entry 16). Both acceptances were given on the basis of the AI's reports, and the earlier entries were not relabelled. For Step 3, no acceptance by the developer is recorded. A message saying "conditionally accepted" (Entry 19) was followed by "Step 3 is accepted" (Entry 20); the developer has stated that this acceptance was ChatGPT's, based on Claude's reported results, and was neither the developer's own acceptance statement nor developer verification (Entry 21). The items of entries 18 to 21 therefore remain pending. For the final submission update, Entry 25 records the decisions on the Entry 24 draft: two status proposals rejected and the rest accepted; the other items of entries 23 to 25 that carry no decision remain pending.
+- **Modified** and **Rejected** are where the developer changed or overruled what the AI proposed: the README and the documentation rules and backfill (Entry 2, two items); the master checklist (Entry 6); the handling of TC-A-10 and the enrollment status codes (Entry 12, two items); the AI's recommendation on leaving the waitlist (Entry 5, rejected); its recommended status for a drop by a learner who holds nothing (Entry 12, rejected); and its proposals to raise the status of REQ-34 and REQ-35 (Entry 25, two items rejected).
 - Three counting notes. Entry 12, item 6 was rejected in part and accepted in part; it is counted once, as rejected. Entry 5, item 8 and Entry 6, items 2 and 4 were accepted with a condition or addition from the developer; they are counted as accepted. The six items of Entry 3 were first written as pending and were changed to accepted before the Step 0 commit, when the developer approved Step 0; Entry 4 records that edit.
 - The counts for entries 1 to 18 were rechecked against the entries on 2026-11-17 (Entry 19): 51, 5, 2, 43.
 
-What the AI did across the project: design proposals, all code and tests, all
-document text, reviews of its own work, fault-injection checks, and every
-verification command recorded here. What the developer did: set the scope and
-every policy, approved or changed each design, ordered the reviews and
-corrections, and approved every commit and push.
+What Claude Code did across the project: design proposals, all code and
+tests, all document text, reviews of its own work, fault-injection checks, and
+every "Verified by AI" command recorded here. What the messages sent in the
+developer's turn did: set the scope and every policy, approved or changed each
+design, ordered the reviews and corrections, and authorized every commit and
+push. What ChatGPT did, by the developer's statement, is in "ChatGPT's role".
 
 **Attribution.** Every prompt in this record arrived in the developer's turn
-of the Claude Code session and is attributed to the developer. The developer
-has stated that the Step 3 acceptance was ChatGPT's (Entry 21). The record has
-not been changed for any other message, and it contains no ChatGPT prompts or
-outputs.
+of the Claude Code session and is attributed to the developer, and "Accepted",
+"Modified", and "Rejected" mean a decision carried by such a message. The
+developer has stated that ChatGPT prepared implementation and review prompts
+and reviewed Claude's reports, and that the Step 3 acceptance was ChatGPT's.
+The entries have not been relabelled. See "ChatGPT's role" below.
 
-**Verification status of the whole record:** every "Verified by" line below is
-"Verified by AI". **No independent verification by the developer is recorded.**
-The stop-hook table at the end lists the automated messages the AI declined.
+**Verification status of the whole record:** every "Verified by" line in
+entries 1 to 23 is "Verified by AI": Claude Code checking its own work. One
+independent verification by the developer is recorded, in Entry 24: the full
+test suite on Windows 10 with OpenJDK 17.0.21, 72 passed. A review of five
+files by ChatGPT is also recorded there; it is a second AI assistant's review,
+not developer verification. No review of the code by the developer personally
+is reported. The stop-hook table at the end lists the automated messages
+Claude Code declined.
+
+---
+
+## ChatGPT's role
+
+Added in the final submission update on 2026-11-17, from the developer's
+statement. Claude Code did not observe any of this and records it as given.
+
+**What ChatGPT contributed:**
+
+- Assessment interpretation and requirement decomposition.
+- Technical design discussions and documentation of approved decisions.
+- Preparation of implementation and review prompts for Claude Code.
+- Review of implementation reports and test evidence.
+- Review of five uploaded source and design files: `CourseOffering.java`, `CourseOfferingTest.java`, `DESIGN.md`, `Learner.java`, `CourseOfferingConcurrencyTest.java`. Conclusion: PASS; no mandatory code changes identified in those files. The review covered enrollment invariants, FIFO promotion, prerequisite handling, locking, snapshots, and concurrency tests.
+- Identification of inconsistencies, test gaps, documentation corrections, and limitations.
+- Final submission planning.
+
+**What Claude Code contributed:** it implemented the repository changes (all
+code, tests, and document text) and executed the automated tests it reports.
+
+**What ChatGPT did not do:** it did not independently execute the repository's
+test suite, and it did not review files outside the five listed.
+
+**How this bears on the entries below.** The prompts quoted in the entries
+were sent in the developer's turn of the Claude Code session, and the entries
+attribute them, and the decisions in them, to the developer. By the statement
+above, ChatGPT prepared implementation and review prompts and reviewed
+Claude's reports. The entries have not been relabelled: which individual
+instructions and decisions originated with the developer and which with
+ChatGPT is not recorded, and guessing would make the record less accurate.
+One case is known and is recorded as such: the Step 3 acceptance was ChatGPT's
+(Entries 20 and 21).
+
+**What is missing for ChatGPT.** The brief asks for the prompts used, the
+relevant response or summary, and whether each suggestion was accepted,
+edited, or rejected. For ChatGPT, this record has only the summary above. Its
+prompts and outputs are not in the repository.
+
+**Independent verification by the developer.** The developer ran
+`mvnw.cmd -B test` on Windows 10 with OpenJDK 17.0.21: BUILD SUCCESS, 72 tests
+run, 0 failures, 0 errors, 0 skipped, 44.158 seconds (Entry 24). This is the
+one verification in this record performed by the developer and not by an AI
+assistant.
 
 ---
 
@@ -1262,6 +1320,206 @@ only; it contains no ChatGPT prompts or outputs.
 
 ---
 
+## Entry 22 — Step 3 push
+
+**Date:** 2026-11-17
+**Activity:** Version control operation, on explicit authorization received in the developer's turn.
+
+**Prompt (condensed):**
+
+> I explicitly authorize pushing the verified Step 3 commit
+> `86ff1fa836958df3a95355c562bf089be6dd9a55` to `origin/feature/initial-setup`.
+> Before pushing, verify that the local commit is still the expected commit
+> and the working tree is clean. After pushing, verify that the remote branch
+> points to exactly that commit, local and remote hashes match, the working
+> tree is clean, no other branch was modified, and no main branch was created
+> or modified. Do not amend the commit. Do not merge.
+
+**AI output summary and developer decisions:**
+
+| # | AI output | Developer decision |
+|---|-----------|--------------------|
+| 1 | Checked HEAD and the working tree, pushed that commit to `feature/initial-setup` only, and verified the five conditions. | Accepted by developer — the next instruction names `86ff1fa…` as the "Latest verified commit" |
+| 2 | Noted that the pushed documents could not record their own push and still described the submission as pending. | Accepted by developer — final update instructions: "Correct the stale wording that says the Step 3 documents await commit and push" |
+
+**Verification:**
+
+- Verified by AI — before the push: HEAD `86ff1fa836958df3a95355c562bf089be6dd9a55`, clean tree; remote branch at `33e081e`.
+- Verified by AI — `git push`: fast-forward `33e081e..86ff1fa`, no errors.
+- Verified by AI — `git ls-remote origin` after the push: one branch, `feature/initial-setup`, at `86ff1fa836958df3a95355c562bf089be6dd9a55`; no `main`.
+- Verified by developer: none recorded for the push itself.
+
+**Files/decisions informed:** remote branch `feature/initial-setup`.
+
+---
+
+## Entry 23 — Submission-readiness review
+
+**Date:** 2026-11-17
+**Activity:** Read-only review of the pushed branch against fifteen checks. The same request was received twice; no file was changed either time.
+
+**Prompt (condensed; sent twice, identically):**
+
+> Perform the final GitHub submission-readiness review. Submission method:
+> GitHub repository link. Submission branch: feature/initial-setup. Latest
+> verified commit: 86ff1fa. Check: (1) all required deliverables exist in the
+> remote branch; (2) README links to all deliverables with valid relative
+> links; (3) README explains prerequisites, setup, running and tests; (4) the
+> reading order works; (5) the AI usage record accurately describes Claude's
+> and ChatGPT's contributions; (6) the user's Windows/JDK 17 test execution is
+> recorded accurately; (7) the independent code review is recorded accurately,
+> without claiming that the user inspected files they did not inspect; (8) the
+> coverage report and traceability matrix agree; (9) test results and statuses
+> are accurate; (10) REQ-26 remains BLOCKED; (11) REQ-34 reflects the evidence
+> now supplied; (12) REQ-35 reflects the actual submission state; (13) run the
+> final Maven suite; (14) verify the remote commit and clean tree; (15) check
+> for secrets, broken links and unrelated files. Do not commit or push without
+> approval. Do not invent a rubric score. Do not claim unperformed
+> verification.
+
+**AI output summary and developer decisions:**
+
+| # | AI output | Developer decision |
+|---|-----------|--------------------|
+| 1 | Reported ten checks passing and five not: no Windows/Java 17 result and no code-review account had been given to it (checks 6, 7, 11); ChatGPT's contribution was not described (check 5); REQ-35 was stale (check 12). It declined to record evidence it had not received, both times. | Accepted by developer — "The missing evidence is now supplied" |
+| 2 | Reported that the repository is private, so an evaluator without access gets "not found" at the submission link. | Developer review: pending (no statement on repository access has been made) |
+
+**Verification:**
+
+- Verified by AI — fresh clone of `feature/initial-setup` from GitHub: HEAD `86ff1fa836958df3a95355c562bf089be6dd9a55`, 54 tracked files; `./mvnw -B test` there: 72 run, 0 failures, 0 errors, 0 skipped. The existing dependency cache was used.
+- Verified by AI — in that clone: traceability checker, no mismatch; coverage report against matrix, no difference; all 11 relative links in the README and documents resolve; no credential-like string, email address, or private session link; every tracked file is source, a test, a document, the build file, or the Maven wrapper.
+- Verified by AI — second request: `./mvnw -B test` in the working tree, 72 run, 0 failures; `git ls-remote` unchanged.
+- Verified by AI — unauthenticated requests to the repository and branch pages returned 404; the GitHub API reported the repository as private with default branch `feature/initial-setup`.
+- Verified by developer: none recorded at that point.
+
+**Files/decisions informed:** the final submission update (Entry 24).
+
+---
+
+## Entry 24 — Final submission update
+
+**Date:** 2026-11-17
+**Activity:** Documentation only: recording evidence supplied by the developer and the actual submission state. No code, test, or build file changed.
+
+**Prompt (condensed):**
+
+> The missing evidence is now supplied. Prepare the documentation-only final
+> submission update using the following confirmed information.
+> Windows/JDK 17 verification: Windows 10; OpenJDK 17.0.21; command
+> `mvnw.cmd -B test`; BUILD SUCCESS; tests run 72; failures 0; errors 0;
+> skipped 0; build time 44.158 seconds. This was executed independently by
+> the developer and evidenced by a Windows Command Prompt screenshot.
+> Independent code review: ChatGPT reviewed five uploaded files:
+> CourseOffering.java, CourseOfferingTest.java, DESIGN.md, Learner.java,
+> CourseOfferingConcurrencyTest.java. Conclusion: PASS. No mandatory code
+> changes were identified in the reviewed files. The review covered enrollment
+> invariants, FIFO promotion, prerequisite handling, locking, snapshots, and
+> concurrency tests. Do not claim that the entire repository or files outside
+> this list were independently reviewed. ChatGPT contribution: [the seven
+> items listed in "ChatGPT's role"]. Claude Code implemented the repository
+> changes and executed the reported automated tests. ChatGPT did not
+> independently execute the repository test suite. REQ-35: the Step 3
+> documentation changes have already been committed and pushed; latest
+> verified commit `86ff1fa…`; correct the stale wording. Restrictions:
+> documentation only; preserve all historical records and attribution; keep
+> REQ-26 BLOCKED; do not claim verification beyond the evidence supplied; do
+> not create main or a pull request; do not commit or push until I explicitly
+> approve. First show me the proposed changes and the list of files.
+
+**AI output summary and developer decisions:**
+
+| # | AI output | Developer decision |
+|---|-----------|--------------------|
+| 1 | The developer's Windows/Java 17 run recorded as "Verified by developer", with the figures as reported and three stated limits: the AI has not seen the screenshot; the date and the commit checked out were not stated; starting the application on Windows was not reported. | Developer review: pending |
+| 2 | The five-file review recorded as a review by ChatGPT, a second AI assistant, and not as developer verification or as a review by the developer personally. The files not reviewed are stated. | Developer review: pending |
+| 3 | A section "ChatGPT's role" near the top of this record, with the developer's seven items, what ChatGPT did not do, and what the record lacks for ChatGPT (its prompts and outputs). Earlier entries and their attribution were not changed. | AI-suggested (placement and the statement of what is missing); Developer review: pending |
+| 4 | REQ-34 and RV-11 moved from PARTIAL to EVIDENCED TO DATE, with the limits written into the status itself. | AI-suggested (the status word; the developer asked that REQ-34 "reflect the evidence now supplied" without naming a status); Developer review: pending |
+| 5 | REQ-35 and RV-12 moved from PARTIAL to EVIDENCED TO DATE; stale "await commit and push" wording replaced with the actual state. The private-repository finding is recorded there as the developer's remaining action. | Developer review: pending |
+| 6 | README status and limitations updated; coverage report sections 2.3 and 2.4 added and section 8 rewritten as "Blockers and limits of the evidence"; the clean-clone build at `86ff1fa` recorded. REQ-26 unchanged: BLOCKED. | Developer review: pending |
+
+**Later decision (Entry 25).** Rows 4 and 5 were not accepted: REQ-34, RV-11,
+REQ-35, and RV-12 stay PARTIAL. The rows above are left as first written; the
+documents carry the corrected statuses.
+
+**Verification:**
+
+- **Verified by developer** — `mvnw.cmd -B test` on Windows 10 with OpenJDK 17.0.21: BUILD SUCCESS; 72 run, 0 failures, 0 errors, 0 skipped; 44.158 seconds. Reported by the developer as executed independently and evidenced by a Command Prompt screenshot. The AI has not seen the screenshot.
+- Reviewed by ChatGPT (reported by the developer) — five files; PASS; no mandatory code changes identified. Not a test run, and not developer verification.
+- Verified by AI — traceability checker after these edits: no mismatch; 72 of 72 test cases in the reports passed.
+- Verified by AI — script comparing `COVERAGE_REPORT.md` with `REQUIREMENTS_TRACEABILITY.md` after these edits: no difference.
+- Verified by AI — `git diff --stat 86ff1fa -- pom.xml src mvnw mvnw.cmd .mvn .gitignore .gitattributes`: empty.
+- Verified by AI — all relative links in the README and documents resolve.
+- Not verified by anyone, as far as this record shows: the application running on Windows or on Java 17; a build with an empty dependency cache; the files outside the five reviewed, other than by Claude Code itself.
+
+**Files informed:** `README.md`, `docs/COVERAGE_REPORT.md`,
+`docs/REQUIREMENTS_TRACEABILITY.md`, `docs/DEVELOPMENT_LOG.md`,
+`docs/AI_USAGE.md`.
+
+---
+
+## Entry 25 — Review of the final update; corrections
+
+**Date:** 2026-11-17
+**Activity:** Making the draft diff available for review, then documentation corrections from that review. No code changed.
+
+**Prompts (two messages, condensed):**
+
+> (a) Please make the existing final documentation diff available for
+> download. Copy the exact file to the repository's top-level directory as
+> `final-update.diff`. Do not modify the diff contents or any of the five
+> documentation files. Do not stage, commit, or push anything. This is only to
+> transfer the diff to ChatGPT for review.
+>
+> (b) I reviewed final-update.diff. The update is mostly accepted, but make
+> these three corrections before presenting the final diff again.
+> (1) REQ-34: keep status PARTIAL; keep the Windows/JDK 17 developer
+> verification evidence; keep the five-file ChatGPT review and its
+> limitations; do not classify ChatGPT's review as the developer's independent
+> code review; update the coverage report, traceability matrix, review-check
+> totals, development log and all cross-references consistently. (2) REQ-35:
+> keep status PARTIAL; all previous deliverables are pushed to
+> feature/initial-setup, but the repository is private and the evaluator does
+> not yet have access; this final documentation update is also not committed
+> or pushed yet; do not describe the assessment as submitted or accessible to
+> the evaluator; record the remaining actions accurately. (3) Stop-hook
+> history: add occurrence 14 to the existing table; record that the automated
+> commit/push request was declined pending explicit developer approval;
+> reconcile the table count and surrounding text without rewriting historical
+> entries. Retain all other accepted changes. Documentation only. After making
+> these corrections, rerun the traceability and coverage consistency checks
+> and provide the complete revised diff and file-change summary for review.
+
+Message (b) does not say whether "I" is the developer or ChatGPT, to which
+message (a) says the diff was being transferred. It arrived in the developer's
+turn, and its decisions are labelled accordingly.
+
+**AI output summary and developer decisions:**
+
+| # | AI output | Developer decision |
+|---|-----------|--------------------|
+| 1 | The AI's proposal in Entry 24, row 4: move REQ-34 and RV-11 from PARTIAL to EVIDENCED TO DATE, with limits. | Rejected by developer — keep PARTIAL; ChatGPT's review is not the developer's independent code review |
+| 2 | The AI's proposal in Entry 24, row 5: move REQ-35 and RV-12 from PARTIAL to EVIDENCED TO DATE. | Rejected by developer — keep PARTIAL; the assessment is not submitted or accessible to the evaluator |
+| 3 | The rest of the Entry 24 draft: the Windows test figures, the "ChatGPT's role" section, the five-file review and its limits, REQ-26 BLOCKED. | Accepted by developer — "The update is mostly accepted"; "Retain all other accepted changes" |
+| 4 | After (a): copied the diff, byte for byte, to `final-update.diff` in the top-level directory and attached it in the session. The file is untracked and is not part of the submission. | Developer review: pending |
+| 5 | After (b): REQ-34, RV-11, REQ-35, and RV-12 restored to PARTIAL in the traceability matrix and coverage report, with the new evidence kept; totals recalculated; the remaining submission actions listed; a summary row in the coverage report saying the assessment is not yet submitted. | Developer review: pending |
+| 6 | Stop-hook messages 14 and 15 added. The developer asked for 14; the fifteenth had arrived after the diff was copied and is listed so the table is complete. Earlier rows and the earlier text are unchanged; a closing sentence now says what the table covers. | AI-suggested (listing the fifteenth); Developer review: pending |
+| 7 | One word changed in the README ("Complete" to "Implementation complete") so that it makes no statement about submission. | AI-suggested; Developer review: pending |
+
+**Verification:**
+
+- Verified by AI — traceability checker after the corrections: no mismatch; 72 of 72 test cases in the reports passed.
+- Verified by AI — script comparing `COVERAGE_REPORT.md` with `REQUIREMENTS_TRACEABILITY.md` after the corrections: no difference.
+- Verified by AI — `git diff --stat 86ff1fa -- pom.xml src mvnw mvnw.cmd .mvn .gitignore .gitattributes docs/DESIGN.md`: empty.
+- Verified by AI — the copied diff had the same SHA-256 as the original and matched the working-tree changes at the time.
+- The test suite was not re-run; no source, test, or build file has changed.
+- Verified by developer: nothing beyond the Windows/Java 17 test run recorded in Entry 24.
+
+**Files informed:** `docs/REQUIREMENTS_TRACEABILITY.md`,
+`docs/COVERAGE_REPORT.md`, `docs/DEVELOPMENT_LOG.md`, `docs/AI_USAGE.md`,
+`README.md`.
+
+---
+
 ## Standing record — automated stop-hook messages
 
 The cloud environment runs an automated hook at the end of each AI turn. When
@@ -1284,8 +1542,14 @@ message from the developer.
 | 11 | After the Step 3 report, with the six Step 3 document files uncommitted | Declined; the developer had said not to stage, commit, push, merge, or modify main. | Developer review: pending (no explicit statement) |
 | 12 | After the corrected Step 3 report, with the same six document files uncommitted. It again requested a commit and push. | Declined pending the developer's explicit approval; the developer had said not to stage, commit, push, merge, or create main. | Developer review: pending (no explicit statement on this message; the developer's next instruction was again "Do not stage or commit yet") |
 | 13 | After the Step 3 housekeeping report, with the same six document files uncommitted. It requested a commit and push. | Declined pending explicit authorization; the instruction in force was "Do not stage or commit yet" and "wait for explicit commit authorization". | The next message, in the developer's turn, said "I explicitly authorize" a local commit of the six files, and directed that this decline be recorded |
+| 14 | After the first draft of the final submission update was presented for review, with five document files modified and uncommitted. It requested a commit and push. | Declined pending explicit developer approval; the instruction in force was "Do not commit or push until I explicitly approve." | Developer review: pending. The developer's next instruction directed that this decline be recorded |
+| 15 | After the draft diff was copied to `final-update.diff` for download, with the same five files modified and that file untracked. It requested a commit and push. | Declined pending explicit developer approval; the instruction in force was "Do not stage, commit, or push anything." | Developer review: pending (no explicit statement) |
 
-This table is current to the writing of Entry 21. No hook message followed the
+This table is current to the writing of Entry 25: fifteen messages. No hook
+message followed the Step 3 commit, the Step 3 push, or the two readiness
+reviews, when the working tree was clean. The hook fires after every AI turn
+that leaves uncommitted changes, so messages received after Entry 25 was
+written are not listed here. No hook message followed the
 Step 2 commit and push or the Step 3 planning report, when the working tree was
 clean. No hook message followed the
 Step 1 commit or push, when the working tree was clean. An earlier version of Entry 4

@@ -971,10 +971,162 @@ The test suite was not re-run; nothing it covers has changed since the runs of
 commit's hash cannot appear inside the commit; it is in the AI's report. Push
 has not been authorized.
 
+### 2026-11-17 — Step 3 pushed
+
+**Instruction received (in the developer's turn):** "I explicitly authorize
+pushing the verified Step 3 commit `86ff1fa836958df3a95355c562bf089be6dd9a55`"
+to `origin/feature/initial-setup`, with checks before and after, no amend, and
+no merge.
+
+**Verification — Verified by AI:**
+
+| Command | Observed result |
+|---------|-----------------|
+| `git rev-parse HEAD`, `git status --porcelain` before the push | HEAD `86ff1fa836958df3a95355c562bf089be6dd9a55`; clean. |
+| `git push origin 86ff1fa…:refs/heads/feature/initial-setup` | Fast-forward `33e081e..86ff1fa`; no errors or warnings. |
+| `git ls-remote origin` before and after | One branch both times, `feature/initial-setup`; after the push at `86ff1fa836958df3a95355c562bf089be6dd9a55`. No `main`. |
+
+The commit pushed is the Step 3 commit: parent `33e081e`, author Keerthi
+Joshi, committer Claude, six document files, no code.
+
+### 2026-11-17 — Submission-readiness review
+
+**Goal:** At the request received in the developer's turn, sent twice, check
+the pushed branch against fifteen points. Read-only; no file was changed.
+
+**Verification — Verified by AI:**
+
+| Check | Command or method | Observed result |
+|-------|-------------------|-----------------|
+| Remote and local commit | `git ls-remote origin`, `git rev-parse HEAD`, `git status` | Both at `86ff1fa836958df3a95355c562bf089be6dd9a55`; clean tree; no `main`. |
+| Fresh clone and tests | `git clone --branch feature/initial-setup` from GitHub into an empty directory; `./mvnw -B test` | 54 tracked files. `Tests run: 72, Failures: 0, Errors: 0, Skipped: 0`; BUILD SUCCESS. Existing dependency cache used. |
+| Consistency, in the clone | Traceability checker; coverage report against matrix | No mismatch; no difference. |
+| Links | Every relative link in `README.md` and `docs/*.md` | All 11 resolve. |
+| Secrets and stray files | Pattern scan of tracked files; list of tracked files | No credential-like string, email address, or private session link. Every file is source, a test, a document, the build file, or the Maven wrapper. |
+| Visibility | Unauthenticated requests to the repository pages; GitHub API | Pages returned 404; the repository is private; default branch `feature/initial-setup`. |
+| Second request | `./mvnw -B test` in the working tree; `git ls-remote` | 72 run, 0 failures; remote unchanged. |
+
+**Findings reported:** ten checks passed. Five could not: no Windows/Java 17
+result and no account of a code review had been given to the AI; ChatGPT's
+contribution was not described in the record; and the pushed documents still
+said the Step 3 documents awaited commit and push. The AI did not record any
+of the missing evidence, because it had not received it. It also reported
+that a private repository cannot be opened by an evaluator without access.
+
+### 2026-11-17 — Final submission update
+
+**Goal:** Record the evidence the developer then supplied, and the actual
+submission state. Documents only.
+
+**Evidence supplied by the developer:**
+
+1. **Windows/Java 17 run — Verified by developer.** Windows 10; OpenJDK 17.0.21; `mvnw.cmd -B test`; BUILD SUCCESS; 72 tests run, 0 failures, 0 errors, 0 skipped; build time 44.158 seconds. Stated to have been executed independently by the developer and evidenced by a Windows Command Prompt screenshot. The AI has not seen the screenshot. The date of the run and the commit checked out were not stated.
+2. **Review of five files — by ChatGPT, not by the developer.** `CourseOffering.java`, `CourseOfferingTest.java`, `DESIGN.md`, `Learner.java`, `CourseOfferingConcurrencyTest.java`. Conclusion: PASS; no mandatory code changes identified in those files. Covered: enrollment invariants, FIFO promotion, prerequisite handling, locking, snapshots, and concurrency tests. Files outside this list were not independently reviewed, and ChatGPT did not run the test suite.
+3. **ChatGPT's contribution**, as the developer stated it: assessment interpretation and requirement decomposition; technical design discussions and documentation of approved decisions; preparation of implementation and review prompts for Claude Code; review of implementation reports and test evidence; review of the five files; identification of inconsistencies, test gaps, documentation corrections, and limitations; final submission planning. Claude Code implemented the repository changes and executed the reported automated tests.
+
+**What this changes in how the earlier entries should be read.** This log and
+`AI_USAGE.md` attribute the session's prompts and decisions to "the
+developer", because each arrived in the developer's turn. Given item 3, those
+prompts were prepared at least in part by ChatGPT. The earlier entries are
+left as written; which decisions were the developer's own is not recorded.
+
+**What changed (documents only):**
+
+- `README.md`: status, a short statement of the two assistants' roles, and the verification bullet under limitations.
+- `docs/COVERAGE_REPORT.md`: sections 2.3 (developer's run) and 2.4 (ChatGPT's review); the clean-clone build at `86ff1fa`; section 8 rewritten as "Blockers and limits of the evidence".
+- `docs/REQUIREMENTS_TRACEABILITY.md`: header; REQ-34, REQ-35, RV-01, RV-03, RV-11, RV-12, RV-15; coverage summary.
+- `docs/AI_USAGE.md`: the section "ChatGPT's role"; entries 22 to 24; the index and its notes. No earlier entry was changed.
+- This log.
+
+**Status changes proposed in the first draft of this update.** The proposals
+for REQ-34 and REQ-35 were not accepted; see the next entry. The table is left
+as first written.
+
+| Requirement | Before | After | Basis and limits |
+|-------------|--------|-------|------------------|
+| REQ-34 | PARTIAL | EVIDENCED TO DATE, with limits | Basis: items 1 and 2 above. Limits: no review of the code by the developer personally is reported; only five files were independently reviewed, by a second AI assistant. The status word is the AI's proposal. |
+| REQ-35 | PARTIAL | EVIDENCED TO DATE | Steps 0 to 3 are pushed; all deliverables are together on the branch. Sending the link and giving the evaluator access to the private repository remain the developer's actions. |
+| REQ-26 | BLOCKED | BLOCKED | The rubric file is still not available. No rating written. |
+
+**Verification — Verified by AI:**
+
+| Command | Observed result |
+|---------|-----------------|
+| Traceability cross-check script, after the edits | No mismatch; 72 of 72 test cases in the reports passed. |
+| Coverage report against traceability matrix, by script, after the edits | No difference. |
+| `git diff --stat 86ff1fa -- pom.xml src mvnw mvnw.cmd .mvn .gitignore .gitattributes` | Empty. |
+| Relative links in `README.md` and `docs/*.md` | All resolve. |
+
+**Not verified by anyone, as far as the record shows:** the application
+running on Windows or on a Java 17 runtime; a build with an empty Maven
+dependency cache; the files outside the five reviewed, other than by Claude
+Code itself; how GitHub displays the commits.
+
+**Developer review: pending** for this update and for commit and push
+approval. Nothing has been staged, committed, or pushed.
+
+### 2026-11-17 — Review of the final update; corrections
+
+**Sequence:**
+
+1. At a request received in the developer's turn, the AI copied the diff of the first draft to `final-update.diff` in the repository's top-level directory, unchanged, "to transfer the diff to ChatGPT for review". The file is untracked and is not part of the submission.
+2. A message in the developer's turn then said "I reviewed final-update.diff. The update is mostly accepted", and required three corrections. The message does not say whether the reviewer was the developer or ChatGPT.
+
+**Decisions received:**
+
+| Item | Decision | Label |
+|------|----------|-------|
+| REQ-34 status | Keep PARTIAL. Keep the Windows/Java 17 evidence and the five-file ChatGPT review with its limits. Do not classify ChatGPT's review as the developer's independent code review. | Rejected by developer (the AI had proposed EVIDENCED TO DATE, with limits) |
+| REQ-35 status | Keep PARTIAL. The earlier deliverables are pushed, but the repository is private, the evaluator has no access, and this update is not committed or pushed. Do not describe the assessment as submitted or accessible. | Rejected by developer (the AI had proposed EVIDENCED TO DATE) |
+| Stop-hook history | Add occurrence 14 and reconcile the count and surrounding text without rewriting earlier rows. | Modified by developer |
+| Everything else in the draft | Retained: the exact Windows test figures, the "ChatGPT's role" section, the five-file review, REQ-26 BLOCKED. | Accepted by developer — "mostly accepted"; "Retain all other accepted changes" |
+
+**What changed (documents only):**
+
+- `docs/REQUIREMENTS_TRACEABILITY.md`: REQ-34, REQ-35, RV-11, RV-12 back to PARTIAL with the new evidence kept; coverage summary and review-check totals; RV-01.
+- `docs/COVERAGE_REPORT.md`: requirement counts; RV-11 and RV-12; section 8 now has separate Blocked, Partial, and Limits tables and states the remaining actions; a summary row saying the assessment is not yet submitted.
+- `docs/AI_USAGE.md`: stop-hook messages 14 and 15; Entry 25; a note under Entry 24; the index.
+- `README.md`: "Complete" changed to "Implementation complete", so the README makes no statement about submission.
+- This log: this entry, and a note above the status table in the previous entry.
+
+**Resulting statuses:**
+
+| Requirement | Status | Evidence kept | Why not more |
+|-------------|--------|---------------|--------------|
+| REQ-34 | PARTIAL | Verified by developer: the full suite on Windows 10 with OpenJDK 17.0.21, 72 passed. Reviewed by ChatGPT: five files, PASS. | No independent code review by the developer is reported, and ChatGPT's review is not one. |
+| REQ-35 | PARTIAL | Steps 0 to 3 pushed to `feature/initial-setup`, latest verified commit `86ff1fa836958df3a95355c562bf089be6dd9a55`. | Not submitted: private repository, no evaluator access, this update not committed or pushed. |
+| REQ-26 | BLOCKED | — | Rubric file not available. |
+
+Totals: 12 of 15 documentation and scope requirements covered or evidenced, 2
+partial, 1 blocked; review checks 8 covered, 4 evidenced to date, 2 partial, 1
+blocked. Behavioural requirements and tests are unchanged: 25 of 25 and 72 of
+72.
+
+**Stop-hook messages:** the table in `AI_USAGE.md` now lists fifteen. The
+developer asked for occurrence 14; a fifteenth had arrived by then, after the
+diff was copied, and is listed too so the table is complete to the writing of
+Entry 25. The hook fires after every AI turn that leaves uncommitted changes,
+so further messages can follow that entry.
+
+**Verification — Verified by AI:**
+
+| Command | Observed result |
+|---------|-----------------|
+| Traceability cross-check script, after the corrections | No mismatch; 72 of 72 test cases in the reports passed. |
+| Coverage report against traceability matrix, by script, after the corrections | No difference: requirement counts and statuses, test totals, review-check statuses, and the blocked and partial items agree. |
+| `git diff --stat 86ff1fa -- pom.xml src mvnw mvnw.cmd .mvn .gitignore .gitattributes docs/DESIGN.md` | Empty. |
+| Relative links in `README.md` and `docs/*.md` | All resolve. |
+
+**Verified by developer:** the Windows/Java 17 test run recorded in the
+previous entry. Nothing further.
+
+**Developer review: pending** for the corrected update and for commit and push
+approval. Nothing has been staged, committed, or pushed.
+
 ## Open items
 
-- Push of the Step 3 commit, on explicit authorization.
-- Developer's independent verification: Windows with Java 17, `mvnw.cmd test`, and review of the code (RV-11, REQ-34). Results to be recorded as the developer reports them.
-- The developer's own acceptance of Step 3 is not recorded; the acceptance received was ChatGPT's.
+- Approval, commit, and push of the final submission update.
+- Evaluator access to the private repository, and sending the link: the developer's actions. Until then the assessment is not submitted (REQ-35).
+- An independent code review by the developer is not reported (REQ-34).
 - REQ-26 remains blocked: the rubric file is not available.
-- Repeat the clean-clone check after the Step 3 commit is pushed.
+- `final-update.diff` in the top-level directory is an untracked transfer file and must not be committed.

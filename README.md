@@ -9,16 +9,24 @@ full registration platform.
 
 ## Status
 
-**Complete, pending the developer's own verification.** The enrollment, drop,
-and waitlist rules are implemented as plain Java domain classes and exposed
-through a small REST API. All state is in memory. 72 automated tests pass.
+**Implementation complete.** The enrollment, drop, and waitlist rules are implemented as
+plain Java domain classes and exposed through a small REST API. All state is
+in memory. 72 automated tests pass: on Linux with JDK 21, run by Claude Code,
+and on Windows 10 with OpenJDK 17.0.21, run independently by the developer.
 
 | Step | Scope | State |
 |------|-------|-------|
 | 0 | Maven/Spring Boot skeleton, documentation scaffolding, startup test | Done |
 | 1 | Domain model (`Course`, `Learner`, `CourseOffering`), domain and concurrency tests, design specification, traceability matrix | Done |
 | 2 | Service layer, REST API, service and API tests | Done |
-| 3 | Final verification, coverage report, limitations summary, reviewer guide | Done by the AI; the developer's independent verification is not yet recorded |
+| 3 | Final verification, coverage report, limitations summary, reviewer guide | Done |
+| Final | The developer's Windows/Java 17 test run, a second-assistant review of five files, and the record of how AI was used | Recorded |
+
+Two AI assistants were used: Claude Code wrote the repository's code, tests,
+and documents and ran the tests it reports; ChatGPT was used for
+interpretation, design discussion, prompt preparation, and review. Who did
+what, and what was and was not independently checked, is in
+[docs/AI_USAGE.md](docs/AI_USAGE.md).
 
 Not available: the rubric self-rating. The scorecard file the brief refers to
 was not supplied. See the coverage report.
@@ -196,7 +204,7 @@ A concise summary. The full list, with consequences, is in
 - **Learners cannot be removed**, and the learner directory has no size limit.
 - **Promotion scans the waitlist from the front**, so its cost grows with the number of ineligible learners ahead of the first eligible one.
 - **Concurrency tests are probabilistic.** They always pass on correct code, and they failed when locks were deliberately removed, but passing cannot prove the absence of every race. The tests over real HTTP are weaker detectors than the in-process ones.
-- **Not yet verified on Java 17 or on Windows.** The code is compiled for Java 17 but has only been run on JDK 21 on Linux.
+- **Limits of the verification.** The test suite passed on Linux with JDK 21 and on Windows 10 with OpenJDK 17.0.21. Starting the application and the `curl` walk-through were done on Linux only. Independent review covered five files, not the whole repository; see [docs/COVERAGE_REPORT.md](docs/COVERAGE_REPORT.md), section 8.
 
 Follow-up work a production version would need: persistence with database
 transactions in place of the in-memory lock, authentication, removal of

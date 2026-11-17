@@ -3,13 +3,16 @@
 Master checklist of every requirement and test for this assessment, and the
 matrix linking requirement, implementation, test, and result.
 
-**Last updated:** Step 3 (final verification and documentation), 2026-11-16.
-**Last test run recorded here:** `./mvnw -B test` on 2026-11-16, OpenJDK 21.0.12 —
-72 run, 0 failed, 0 errors, 0 skipped, in the working tree and in a clean clone
-of the pushed branch. Verified by AI. **Verified by developer: none recorded.**
-**Confirmation run:** `./mvnw -B test` on 2026-11-17 in the working tree only —
-72 run, 0 failed, 0 errors, 0 skipped. Verified by AI. The clean-clone build was
-not repeated on that date.
+**Last updated:** final submission update, 2026-11-17.
+**Last test run by the AI:** `./mvnw -B test` on 2026-11-17, OpenJDK 21.0.12, Linux —
+72 run, 0 failed, 0 errors, 0 skipped, in the working tree and in a fresh clone
+of the pushed branch at `86ff1fa`. Verified by AI.
+**Verified by developer:** `mvnw.cmd -B test` on Windows 10 with OpenJDK 17.0.21 —
+BUILD SUCCESS; 72 run, 0 failures, 0 errors, 0 skipped; 44.158 seconds. Reported
+by the developer on 2026-11-17 as run independently and evidenced by a Command
+Prompt screenshot, which the AI has not seen.
+**Reviewed by ChatGPT** (reported by the developer): five files, conclusion PASS.
+This is a second AI assistant's review, not developer verification.
 
 The summary of this matrix for a reader is [COVERAGE_REPORT.md](COVERAGE_REPORT.md).
 
@@ -124,8 +127,8 @@ passing tests, at the API level as well as the domain level where both apply.
 | REQ-26 | BRIEF timebox paragraph | Use the AI-Assisted scorecard in `Course-Registration-Rubric-Score.md`. | RV-08 | **BLOCKED**: the rubric file was not supplied with the brief and the developer has confirmed it is not available |
 | REQ-32 | BRIEF candidate expectations | Start by understanding the supplied project and its existing interfaces, persistence, and test conventions; if no starter is supplied, use the minimal service or CLI fallback. | RV-09 | COVERED |
 | REQ-33 | BRIEF scope | Do not implement separate greenfield, brownfield, and ambiguous scenarios. | RV-10 | EVIDENCED TO DATE |
-| REQ-34 | BRIEF candidate expectations | Independently review and verify AI-generated suggestions; be candid about what AI contributed and what was changed or rejected. | RV-11 | PARTIAL: no independent developer verification is recorded yet |
-| REQ-35 | BRIEF candidate expectations | Submit the implementation and all listed deliverables together. | RV-12, RV-15 | PARTIAL: every deliverable is in the repository and linked from the README; the Step 3 documents await commit and push on the developer's approval |
+| REQ-34 | BRIEF candidate expectations | Independently review and verify AI-generated suggestions; be candid about what AI contributed and what was changed or rejected. | RV-11 | PARTIAL: verification is evidenced (the developer ran the full suite independently on Windows 10 with OpenJDK 17.0.21, 72 passed); independent code review by the developer is not (the only review beyond Claude Code's own is ChatGPT's review of five files, which is not the developer's review, and no review by the developer personally is reported) |
+| REQ-35 | BRIEF candidate expectations | Submit the implementation and all listed deliverables together. | RV-12, RV-15 | PARTIAL: not yet submitted. Steps 0 to 3 are pushed to `feature/initial-setup` (latest verified commit `86ff1fa`), but the repository is private and the evaluator does not yet have access, and this final documentation update is not yet committed or pushed |
 
 ## C. Automated tests (AI-DERIVED)
 
@@ -246,9 +249,9 @@ only where the developer has explicitly confirmed a check.
 
 | ID | Check | Requirements | Status | Evidence at this commit |
 |----|-------|--------------|--------|-------------------------|
-| RV-01 | `docs/AI_USAGE.md` has prompts, output summaries, developer decisions, files informed, and verification for every AI activity. | REQ-15, 22 | EVIDENCED TO DATE | `docs/AI_USAGE.md` entries 1-21 cover every session activity to this point, with an index at the top. The stop-hook table lists all thirteen automated messages received so far. |
+| RV-01 | `docs/AI_USAGE.md` has prompts, output summaries, developer decisions, files informed, and verification for every AI activity. | REQ-15, 22 | EVIDENCED TO DATE | `docs/AI_USAGE.md` entries 1-25 cover every Claude Code session activity to this point, with an index at the top and a stop-hook table listing the fifteen automated messages received up to Entry 25. A section "ChatGPT's role" records the developer's statement of what ChatGPT contributed. The record contains no ChatGPT prompts or outputs, so for ChatGPT the brief's "prompts used" and "response or summary" are not available here. |
 | RV-02 | `docs/DESIGN.md` covers every topic the brief lists and states the assumptions. | REQ-16, 21 | COVERED | `docs/DESIGN.md` sections 1-8: service boundary (1, 7.1), data and API design (3, 7), invariants (4), promotion rule (5), concurrency and persistence (6), assumptions and tradeoffs (2, 7.5, 8). The ineligible-at-front policy is W3 and W4 in section 2. |
-| RV-03 | README setup and test commands are present and were actually run. | REQ-23 | COVERED | `README.md` "Setup and run" and "Using the API". `./mvnw -B test` run (72 passed), also from a clean clone; `./mvnw -B spring-boot:run` run with the README's `curl` calls issued against it in Step 2 (Verified by AI). `mvnw.cmd` not run on Windows; the developer has stated they will do this after Step 3. |
+| RV-03 | README setup and test commands are present and were actually run. | REQ-23 | COVERED | `README.md` "Setup and run" and "Using the API". Verified by AI: `./mvnw -B test` (72 passed, also from fresh clones) and `./mvnw -B spring-boot:run` with the README's `curl` calls, on Linux with JDK 21. Verified by developer: `mvnw.cmd -B test` on Windows 10 with OpenJDK 17.0.21, 72 passed. Not reported: `mvnw.cmd spring-boot:run` on Windows. |
 | RV-04 | Limitations and follow-up risks are written up. | REQ-24 | COVERED | Concise summary in `README.md`, "Limitations and follow-up risks"; full list in `docs/DESIGN.md` section 8 (L1-L11; L11 recorded as resolved). |
 | RV-05 | Dependencies and source tree hold one offering, in-memory state, and none of the excluded items. | REQ-17, 18 | EVIDENCED TO DATE | `git diff --stat 33e081e -- pom.xml src` is empty and `./mvnw dependency:tree` shows only the web, validation, and test starters, unchanged since Step 0. State is held in `CourseOffering` and `LearnerDirectory` objects; a search of `src` and `pom.xml` for JDBC, JPA, data-source, cache, and security code found none. |
 | RV-06 | No credentials or secrets in the repository or prompt records. | REQ-25 | EVIDENCED TO DATE | Step 3 scan of all tracked files for credential keywords, key and token patterns, URLs with embedded credentials, and email addresses: no credential and no email address. The only keyword matches are the words used in documentation rules and in this table, and the Maven wrapper scripts' own optional `MVNW_PASSWORD` handling. |
@@ -256,17 +259,17 @@ only where the developer has explicitly confirmed a check.
 | RV-08 | Rubric self-rating completed. | REQ-26 | BLOCKED | `Course-Registration-Rubric-Score.md` was not supplied with the brief, and the developer confirmed in Step 3 that it is not available. No rating has been written and the rubric's criteria have not been guessed. |
 | RV-09 | The existing project was inspected before implementation; the minimal-service fallback is justified. | REQ-32 | COVERED | Repository inspected by command before Step 0 (empty) and before Step 1 (Step 0 skeleton only); see the development log. Fallback justification: `docs/DESIGN.md` section 1. |
 | RV-10 | No separate greenfield, brownfield, or ambiguous scenarios; no frontend, policy engine, or excluded infrastructure. | REQ-18, 19, 33 | EVIDENCED TO DATE | One scenario is implemented: the single-offering slice. Tracked files are 41 Java files, one `application.yaml`, five Markdown documents, `pom.xml`, and the Maven wrapper: no frontend, container, CI, deployment, or SQL files (Step 3 scan). Policies are fixed in `CourseOffering` and `Learner`; the only configuration is the offering's own data, not its rules. The learner endpoints are an in-memory store needed for promotion-time eligibility, not an identity integration or a course catalog. Step 3 added no code. |
-| RV-11 | Independent AI review: what AI contributed, what the developer accepted, modified, or rejected, and how changes were independently verified. | REQ-34 | PARTIAL | AI contributions and developer decisions are recorded per entry in `docs/AI_USAGE.md`: the developer set every policy, and modified or rejected seven AI recommendations. Verification so far is "Verified by AI": commands run in session, the AI's reviews of its own work, and fault-injection checks. These do not count as independent review. The developer has stated they will run the build on Windows with Java 17 after Step 3; no result has been reported. The acceptance statement received for Step 3 was, by the developer's statement, ChatGPT's acceptance based on Claude's reported results; it is neither developer verification nor the developer's own acceptance. **Verified by developer: none recorded. This stays PARTIAL until the developer personally reviews and confirms.** |
-| RV-12 | Implementation and all deliverables are submitted together. | REQ-35 | PARTIAL | Every deliverable the brief lists is present and linked from `README.md`, "How to review this submission", except the rubric self-rating (blocked). Submission is by the branch `feature/initial-setup`, by developer decision; no `main` branch or pull request. The Step 3 documents are not yet committed or pushed. |
+| RV-11 | Independent AI review: what AI contributed, what the developer accepted, modified, or rejected, and how changes were independently verified. | REQ-34 | PARTIAL | What AI contributed and what was accepted, modified, or rejected is recorded per entry in `docs/AI_USAGE.md`; seven AI recommendations were modified or rejected. **Verified by developer:** the full test suite on Windows 10 with OpenJDK 17.0.21, 72 passed, run independently (reported 2026-11-17; screenshot not seen by the AI). **Reviewed by ChatGPT** (reported by the developer): `CourseOffering.java`, `CourseOfferingTest.java`, `DESIGN.md`, `Learner.java`, `CourseOfferingConcurrencyTest.java`; conclusion PASS, no mandatory code change; ChatGPT did not run the tests. ChatGPT's review is not classified as the developer's independent code review. **Limits, and the reason this stays PARTIAL:** no review of the code by the developer personally is reported; files outside these five were not independently reviewed; the Step 3 acceptance was ChatGPT's, based on Claude's reports. All other verification in the record is Claude Code checking its own work. |
+| RV-12 | Implementation and all deliverables are submitted together. | REQ-35 | PARTIAL | Not yet submitted, as of 2026-11-17. Every deliverable the brief lists is linked from `README.md`, "How to review this submission", except the rubric self-rating (blocked). Steps 0 to 3 are pushed to `feature/initial-setup`: `git ls-remote` and a fresh clone on 2026-11-17 showed the branch at `86ff1fa836958df3a95355c562bf089be6dd9a55`. Submission is to be by a link to that branch, by developer decision; no `main` branch or pull request. **Remaining actions, each on the developer's decision:** (1) approve, commit, and push the final documentation update that contains this row; (2) give the evaluator access to the repository, which was private on 2026-11-17, or make it public; (3) send the evaluator the link. |
 | RV-13 | Single offering: the API has one configured offering, no offering id, and no offering registry. (Replaces TC-A-10 by developer decision.) | REQ-17 | COVERED | No path in `OfferingController` or `LearnerController` carries an offering id. One `CourseOffering` bean is created in `OfferingConfiguration`; TC-S-06 asserts the context has a single such bean. TC-A-12 asserts `GET /api/offering` returns the configured offering. TC-A-18 asserts that paths carrying an offering id (`/api/offerings/CS201-A/...`) are not found. No class holds a collection of offerings. |
 | RV-14 | The API never serializes a domain object. | REQ-39 | COVERED | Every controller method returns a record from the `api` package or nothing. The `api` package imports only `EnrollmentResult` and `DropResult` from the domain, both immutable records, and only to copy their values into responses; it does not reference `Learner`, `Course`, `CourseOffering`, or `OfferingSnapshot` (checked by search). TC-A-12 and TC-A-16 assert the exact set of JSON fields. |
-| RV-15 | The submission builds and passes from a clean clone of the pushed branch. | REQ-23, 35 | COVERED | Step 3: `git clone --branch feature/initial-setup` from GitHub into an empty directory gave commit `33e081e`, 53 files, no build output; `./mvnw -B test` there: 72 run, 0 failures. The existing Maven dependency cache was used. To be repeated after the Step 3 commit is pushed; Step 3 changes documents only. |
+| RV-15 | The submission builds and passes from a clean clone of the pushed branch. | REQ-23, 35 | COVERED | `git clone --branch feature/initial-setup` from GitHub into an empty directory, then `./mvnw -B test`: at `33e081e` on 2026-11-16 (53 files) and again at `86ff1fa` on 2026-11-17 after the Step 3 push (54 files): 72 run, 0 failures, both times. The existing Maven dependency cache was used both times; this is not an empty-cache build. |
 
 ## E. Coverage summary
 
-Recomputed in Step 3, for the proposed Step 3 commit. Step 3 changed no code
-and no test, so the test figures are those of Step 2, re-run on 2026-11-16 and
-confirmed on 2026-11-17. No status or count changed between the two dates.
+Recomputed for the final submission update. No code or test has changed since
+Step 2; the test figures are those of Step 2, re-run by the AI on 2026-11-16
+and 2026-11-17 and run by the developer on Windows with Java 17.
 
 | Measure | Count |
 |---------|-------|
@@ -292,21 +295,22 @@ review check RV-13.
 Every mapping in sections B.1 and C was checked in both directions by script:
 each test listed by a requirement lists that requirement, and the reverse.
 Each of the 71 test ids other than TC-A-13 was matched to a test method that
-appears as passed in the surefire report of the run recorded at the top;
+appears as passed in the surefire report of the AI's run recorded at the top;
 TC-A-13 is `contextLoads`, which also passed.
 
-### Changes in Step 3
+### Changes in the final submission update
 
 | Change | Reason |
 |--------|--------|
-| REQ-24 and RV-04 now COVERED | The concise limitations summary the brief asks for was added to the README. |
-| RV-15 added | Clean-clone build check of the pushed branch. |
-| REQ-35 and RV-12 now PARTIAL (were OPEN) | All deliverables are present and linked; commit and push of the Step 3 documents is pending. |
-| REQ-26 and RV-08 wording | The developer confirmed the rubric file is not available. Still BLOCKED. |
-| No test or requirement added or removed | Step 3 is documentation and verification only. |
+| REQ-34 and RV-11: status stays PARTIAL; evidence added | The developer reported an independent Windows/Java 17 run of the full suite, which evidences verification. The five-file review was ChatGPT's and is recorded as that; it is not the developer's independent code review. A first draft of this update proposed EVIDENCED TO DATE; that was not accepted. |
+| REQ-35 and RV-12: status stays PARTIAL; wording corrected | Steps 0 to 3 are now pushed, so the earlier "await commit and push" wording was stale. The assessment is still not submitted: the repository is private, the evaluator has no access, and this update is not yet committed or pushed. A first draft proposed EVIDENCED TO DATE; that was not accepted. |
+| RV-03 and RV-15 evidence extended | The developer's Windows run of the test command; the clean-clone build repeated at `86ff1fa`. |
+| RV-01 evidence | Entries 1-25; ChatGPT's role recorded as stated by the developer. |
+| REQ-26 and RV-08 | Unchanged: BLOCKED. |
+| No test or requirement added or removed; no status changed | Documentation only. |
 
-Earlier changes are recorded in `DEVELOPMENT_LOG.md` (Steps 1 and 2 and their
-review corrections) and in the git history of this file.
+Earlier changes are recorded in `DEVELOPMENT_LOG.md` and in the git history
+of this file.
 
 ### Acceptance criteria
 
@@ -314,11 +318,14 @@ review corrections) and in the git history of this file.
 |----|--------|
 | AC-1 to AC-5 | Each has executed, passing tests at both the domain and the API level. |
 | AC-6 | All six named scenarios have executed, passing tests. Concurrency tests added although the clause is not triggered. |
-| AC-7 | Evidenced by review (RV-01); developer verification not yet recorded (RV-11). |
+| AC-7 | Evidenced by review (RV-01) for Claude Code. ChatGPT's contribution is recorded as the developer stated it, without its prompts or outputs. |
 
 ### Outstanding gaps
 
 - **BLOCKED:** REQ-26 — the rubric file `Course-Registration-Rubric-Score.md` is not available. No self-rating has been written.
-- **PARTIAL:** REQ-34 — developer verification not recorded.
-- **PARTIAL:** REQ-35 — Step 3 documents await commit and push.
-- **Not verified:** a build on an actual JDK 17; `mvnw.cmd` on Windows. The developer has stated they will check both after Step 3.
+- **PARTIAL:** REQ-34 — the developer's test run is recorded; an independent code review by the developer is not. ChatGPT reviewed five files.
+- **PARTIAL:** REQ-35 — not yet submitted. Remaining: commit and push this update; evaluator access to the private repository; sending the link.
+- **Limits of the evidence, not failed checks:**
+  - ChatGPT's prompts and outputs are not in the repository.
+  - `mvnw.cmd spring-boot:run` on Windows and the application on a Java 17 runtime were not reported.
+  - No build with an empty Maven dependency cache.
